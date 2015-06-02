@@ -1,0 +1,60 @@
+/*
+*	Config File
+*/
+
+/*******************************************************
+*	
+*	General Parameters Config
+*
+*******************************************************/
+
+IS_GRADIENT_CHECKING = false;
+USE_LOG = false;
+BATCH_SIZE = 100;
+
+TRAINING_EPOCHS = 50;
+ITER_PER_EPO = 100;
+LRATE_W = 2e-3;
+MOMENTUM_W_INIT = 0.50;
+MOMENTUM_D2_INIT = 0.50;
+MOMENTUM_W_ADJUST = 0.95;
+MOMENTUM_D2_ADJUST = 0.90;
+
+NGRAM = 4;
+TRAINING_PERCENT = 0.80;
+
+/*******************************************************
+*	
+*	Layers Config
+*
+*******************************************************/
+/*
+$
+LAYER = HIDDEN;
+NUM_HIDDEN_NEURONS = 10;
+WEIGHT_DECAY = 0;
+&
+
+$
+LAYER = SOFTMAX;
+NUM_CLASSES = 0;
+WEIGHT_DECAY = 0;
+&
+*/
+
+
+$
+LAYER = HIDDEN;
+NUM_HIDDEN_NEURONS = 512;
+WEIGHT_DECAY = 1e-8;
+&
+
+$
+LAYER = SOFTMAX;
+NUM_CLASSES = 0;
+WEIGHT_DECAY = 1e-6;
+&
+
+
+
+
