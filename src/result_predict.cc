@@ -43,8 +43,8 @@ resultPredict(std::vector<Mat> &x, std::vector<LSTMl> &hLayers, Smr &smr){
                 tmp_cell += hLayers[i - 1].W_cell * output_h[i][j - 1];
                 tmp_output += hLayers[i - 1].W_output * output_h[i][j - 1];
             }
-            tmp_input = Tanh(tmp_input);
-            tmp_forget = Tanh(tmp_forget);
+            tmp_input = nonLinearity(tmp_input);
+            tmp_forget = nonLinearity(tmp_forget);
             tmp_cell = sigmoid(tmp_cell);
             tmp_input.copyTo(acti_input[i - 1][j]);
             tmp_forget.copyTo(acti_forget[i - 1][j]);
@@ -54,7 +54,7 @@ resultPredict(std::vector<Mat> &x, std::vector<LSTMl> &hLayers, Smr &smr){
             }
             tmp_cell.copyTo(acti_cell[i - 1][j]);
             tmp_output += hLayers[i - 1].V_output -> full * tmp_cell;
-            tmp_output = Tanh(tmp_output);
+            tmp_output = nonLinearity(tmp_output);
             tmp_output.copyTo(acti_output[i - 1][j]);
             tmp_output = tmp_output.mul(sigmoid(tmp_cell));
             tmp_output.copyTo(output_h[i][j]);
@@ -83,6 +83,7 @@ resultPredict(std::vector<Mat> &x, std::vector<LSTMl> &hLayers, Smr &smr){
     return result;
 }
 
+/*
 Mat 
 resultPredict(std::vector<Mat> &x, std::vector<Rl> &hLayers, Smr &smr){
 
@@ -106,7 +107,6 @@ resultPredict(std::vector<Mat> &x, std::vector<Rl> &hLayers, Smr &smr){
             acti[i].push_back(tmpacti);
         }
     }
-
     // softmax layer forward
     Mat M = smr.W * acti[acti.size() - 1][T - 1];
     Mat result = Mat::zeros(1, M.cols, CV_64FC1);
@@ -121,10 +121,10 @@ resultPredict(std::vector<Mat> &x, std::vector<Rl> &hLayers, Smr &smr){
     std::vector<std::vector<Mat> >().swap(acti);
     return result;
 }
-
+*/
 void 
 testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int> > &y, std::vector<LSTMl> &HiddenLayers, Smr &smr, 
-             std::vector<string> &re_wordmap){
+             std::vector<string> &re_wordmap, std::unordered_map<string, Mat> &wordvec){
 
     // Test use test set
     // Because it may leads to lack of memory if testing the whole dataset at 
@@ -132,7 +132,6 @@ testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int
     // 
     int batchSize = 50;
     Mat result = Mat::zeros(1, x.size(), CV_64FC1);
-
     std::vector<std::vector<int> > tmpBatch;
     int batch_amount = x.size() / batchSize;
     for(int i = 0; i < batch_amount; i++){
@@ -140,7 +139,11 @@ testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int
             tmpBatch.push_back(x[i * batchSize + j]);
         }
         std::vector<Mat> sampleX;
-        getDataMat(tmpBatch, sampleX, re_wordmap);
+        if(use_word2vec){
+            getDataMat(tmpBatch, sampleX, re_wordmap, wordvec);
+        }else{
+            getDataMat(tmpBatch, sampleX, re_wordmap);
+        }
         Mat resultBatch = resultPredict(sampleX, HiddenLayers, smr);
         Rect roi = Rect(i * batchSize, 0, batchSize, 1);
         resultBatch.copyTo(result(roi));
@@ -152,7 +155,11 @@ testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int
             tmpBatch.push_back(x[batch_amount * batchSize + j]);
         }
         std::vector<Mat> sampleX;
-        getDataMat(tmpBatch, sampleX, re_wordmap);
+        if(use_word2vec){
+            getDataMat(tmpBatch, sampleX, re_wordmap, wordvec);
+        }else{
+            getDataMat(tmpBatch, sampleX, re_wordmap);
+        }
         Mat resultBatch = resultPredict(sampleX, HiddenLayers, smr);
         Rect roi = Rect(batch_amount * batchSize, 0, x.size() % batchSize, 1);
         resultBatch.copyTo(result(roi));
@@ -162,7 +169,6 @@ testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int
     }
     Mat sampleY = Mat::zeros(1, y.size(), CV_64FC1);
     getLabelMat(y, sampleY);
-
     Mat err;
     sampleY.copyTo(err);
     err -= result;
@@ -178,7 +184,7 @@ testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int
     err.release();
 }
 
-
+/*
 void 
 testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int> > &y, std::vector<Rl> &HiddenLayers, Smr &smr, 
              std::vector<string> &re_wordmap){
@@ -234,6 +240,6 @@ testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int
     result.release();
     err.release();
 }
-
+*/
 
 

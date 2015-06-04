@@ -52,6 +52,7 @@ extern bool is_gradient_checking;
 extern bool use_log;
 extern int batch_size;
 extern int log_iter;
+extern bool use_word2vec;
 
 extern int non_linearity;
 extern int training_epochs;

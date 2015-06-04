@@ -57,8 +57,8 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             tmp_input.copyTo(nonlin_input[i - 1][j]);
             tmp_forget.copyTo(nonlin_forget[i - 1][j]);
             tmp_cell.copyTo(nonlin_cell[i - 1][j]);
-            tmp_input = Tanh(tmp_input);
-            tmp_forget = Tanh(tmp_forget);
+            tmp_input = nonLinearity(tmp_input);
+            tmp_forget = nonLinearity(tmp_forget);
             tmp_cell = sigmoid(tmp_cell);
             tmp_input.copyTo(acti_input[i - 1][j]);
             tmp_forget.copyTo(acti_forget[i - 1][j]);
@@ -69,7 +69,7 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             tmp_cell.copyTo(acti_cell[i - 1][j]);
             tmp_output += hLayers[i - 1].V_output -> full * tmp_cell;
             tmp_output.copyTo(nonlin_output[i - 1][j]);
-            tmp_output = Tanh(tmp_output);
+            tmp_output = nonLinearity(tmp_output);
             tmp_output.copyTo(acti_output[i - 1][j]);
             tmp_output = tmp_output.mul(sigmoid(tmp_cell));
             tmp_output.copyTo(output_h[i][j]);
@@ -221,9 +221,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
         tmp2.copyTo(epsilond2_output[epsilond2_output.size() - 1][i]);
         // output gates
         tmp = tmp.mul(sigmoid(acti_cell[acti_cell.size() - 1][i]));
-        tmp = tmp.mul(dTanh(nonlin_output[nonlin_output.size() - 1][i]));
+        tmp = tmp.mul(dnonLinearity(nonlin_output[nonlin_output.size() - 1][i]));
         tmp2 = tmp2.mul(pow(sigmoid(acti_cell[acti_cell.size() - 1][i]), 2.0));
-        tmp2 = tmp2.mul(pow(dTanh(nonlin_output[nonlin_output.size() - 1][i]), 2.0));
+        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output[nonlin_output.size() - 1][i]), 2.0));
         tmp.copyTo(delta_output[delta_output.size() - 1][i]);
         tmp2.copyTo(deltad2_output[deltad2_output.size() - 1][i]);
         // states
@@ -253,9 +253,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
         // forget gates
         if(i > 0){
             tmp = acti_cell[acti_cell.size() - 1][i - 1].mul(epsilon_state[epsilon_state.size() - 1][i]);
-            tmp = tmp.mul(dTanh(nonlin_forget[nonlin_forget.size() - 1][i]));
+            tmp = tmp.mul(dnonLinearity(nonlin_forget[nonlin_forget.size() - 1][i]));
             tmp2 = pow(acti_cell[acti_cell.size() - 1][i - 1], 2.0).mul(epsilond2_state[epsilond2_state.size() - 1][i]);
-            tmp2 = tmp2.mul(pow(dTanh(nonlin_forget[nonlin_forget.size() - 1][i]), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget[nonlin_forget.size() - 1][i]), 2.0));
         }else{
             tmp = Mat::zeros(nonlin_forget[nonlin_forget.size() - 1][i].size(), CV_64FC1);
             tmp2 = Mat::zeros(nonlin_forget[nonlin_forget.size() - 1][i].size(), CV_64FC1);
@@ -264,9 +264,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
         tmp2.copyTo(deltad2_forget[deltad2_forget.size() - 1][i]);
         // input gates
         tmp = epsilon_state[epsilon_state.size() - 1][i].mul(sigmoid(nonlin_cell[nonlin_cell.size() - 1][i]));
-        tmp = tmp.mul(dTanh(nonlin_input[nonlin_input.size() - 1][i]));
+        tmp = tmp.mul(dnonLinearity(nonlin_input[nonlin_input.size() - 1][i]));
         tmp2 = epsilond2_state[epsilond2_state.size() - 1][i].mul(pow(sigmoid(nonlin_cell[nonlin_cell.size() - 1][i]), 2.0));
-        tmp2 = tmp2.mul(pow(dTanh(nonlin_input[nonlin_input.size() - 1][i]), 2.0));
+        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input[nonlin_input.size() - 1][i]), 2.0));
         tmp.copyTo(delta_input[delta_input.size() - 1][i]);
         tmp2.copyTo(deltad2_input[deltad2_input.size() - 1][i]);
     }
@@ -296,9 +296,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             tmp2.copyTo(epsilond2_output[i][j]);
             // output gates
             tmp = tmp.mul(sigmoid(acti_cell[i - 1][j]));
-            tmp = tmp.mul(dTanh(nonlin_output[i - 1][j]));
+            tmp = tmp.mul(dnonLinearity(nonlin_output[i - 1][j]));
             tmp2 = tmp2.mul(pow(sigmoid(acti_cell[i - 1][j]), 2.0));
-            tmp2 = tmp2.mul(pow(dTanh(nonlin_output[i - 1][j]), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output[i - 1][j]), 2.0));
             tmp.copyTo(delta_output[i][j]);
             tmp2.copyTo(deltad2_output[i][j]);
             // states
@@ -328,9 +328,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             // forget gates
             if(j > 0){
                 tmp = acti_cell[i - 1][j].mul(epsilon_state[i][j]);
-                tmp = tmp.mul(dTanh(nonlin_forget[i - 1][j]));
+                tmp = tmp.mul(dnonLinearity(nonlin_forget[i - 1][j]));
                 tmp2 = pow(acti_cell[i - 1][j], 2.0).mul(epsilond2_state[i][j]);
-                tmp2 = tmp2.mul(pow(dTanh(nonlin_forget[i - 1][j]), 2.0));
+                tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget[i - 1][j]), 2.0));
             }else{
                 tmp = Mat::zeros(nonlin_forget[i - 1][j].size(), CV_64FC1);
                 tmp2 = Mat::zeros(nonlin_forget[i - 1][j].size(), CV_64FC1);
@@ -339,9 +339,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             tmp2.copyTo(deltad2_forget[i][j]);
             // input gates
             tmp = epsilon_state[i][j].mul(sigmoid(nonlin_cell[i - 1][j]));
-            tmp = tmp.mul(dTanh(nonlin_input[i - 1][j]));
+            tmp = tmp.mul(dnonLinearity(nonlin_input[i - 1][j]));
             tmp2 = epsilond2_state[i][j].mul(pow(sigmoid(nonlin_cell[i - 1][j]), 2.0));
-            tmp2 = tmp2.mul(pow(dTanh(nonlin_input[i - 1][j]), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input[i - 1][j]), 2.0));
             tmp.copyTo(delta_input[i][j]);
             tmp2.copyTo(deltad2_input[i][j]);
         }
@@ -543,11 +543,7 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<Rl> &hLayers, Smr &smr){
             if(j > 0) tmpacti += hLayers[i - 1].W * acti[i][j - 1];
             nonlin[i - 1].push_back(tmpacti);
             tmpacti = ReLU(tmpacti);
-            if(hiddenConfig[i - 1].DropoutRate < 1.0){
-                Mat bnl = getBernoulliMatrix(tmpacti.rows, tmpacti.cols, hiddenConfig[i - 1].DropoutRate);
-                acti[i].push_back(tmpacti.mul(bnl));
-                bernoulli[i - 1].push_back(bnl);
-            }else acti[i].push_back(tmpacti);
+            acti[i].push_back(tmpacti);
         }
     }
     // softmax layer forward
@@ -622,10 +618,6 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<Rl> &hLayers, Smr &smr){
         tmp2.copyTo(deltad2[deltad2.size() - 1][i]);
         delta[delta.size() - 1][i] = delta[delta.size() - 1][i].mul(dReLU(nonlin[nonlin.size() - 1][i]));
         deltad2[deltad2.size() - 1][i] = deltad2[deltad2.size() - 1][i].mul(pow(dReLU(nonlin[nonlin.size() - 1][i]), 2.0));
-        if(hiddenConfig[hiddenConfig.size() - 1].DropoutRate < 1.0){
-            delta[delta.size() - 1][i] = delta[delta.size() -1][i].mul(bernoulli[bernoulli.size() - 1][i]);
-            deltad2[deltad2.size() - 1][i] = deltad2[deltad2.size() -1][i].mul(pow(bernoulli[bernoulli.size() - 1][i], 2.0));
-        } 
     }
 
     for(int i = delta.size() - 2; i > 0; --i){
@@ -640,10 +632,6 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<Rl> &hLayers, Smr &smr){
             tmp2.copyTo(deltad2[i][j]);
             delta[i][j] = delta[i][j].mul(dReLU(nonlin[i - 1][j]));
             deltad2[i][j] = deltad2[i][j].mul(pow(dReLU(nonlin[i - 1][j]), 2.0));
-            if(hiddenConfig[i - 1].DropoutRate < 1.0){
-                delta[i][j] = delta[i][j].mul(bernoulli[i - 1][j]);
-                deltad2[i][j] = deltad2[i][j].mul(pow(bernoulli[i - 1][j], 2.0));
-            }
         }
     }
     for(int i = hiddenConfig.size() - 1; i >= 0; i--){

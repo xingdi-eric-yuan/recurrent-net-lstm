@@ -93,8 +93,7 @@ typedef struct SoftmaxRegession{
 struct HiddenLayerConfig {
     int NumHiddenNeurons;
     double WeightDecay;
-    double DropoutRate;
-    HiddenLayerConfig(int a, double b, double c) : NumHiddenNeurons(a), WeightDecay(b), DropoutRate(c) {}
+    HiddenLayerConfig(int a, double b) : NumHiddenNeurons(a), WeightDecay(b) {}
 };
 
 struct SoftmaxLayerConfig {

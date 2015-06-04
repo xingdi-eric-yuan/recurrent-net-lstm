@@ -26,7 +26,8 @@ read_2_string(string File_name){
 bool
 get_word_bool(string &str, string name){
 
-    size_t pos = str.find(name);    
+    size_t pos = str.find(name);   
+    if(pos == string::npos) return false; 
     int i = pos + 1;
     bool res = true;
     while(1){
@@ -169,8 +170,7 @@ get_layers_config(string &str){
             case 0:{
                 int hn = get_word_int(layers[i], "NUM_HIDDEN_NEURONS");
                 double wd = get_word_double(layers[i], "WEIGHT_DECAY");
-                double dor = get_word_double(layers[i], "DROPOUT_RATE");
-                hiddenConfig.push_back(HiddenLayerConfig(hn, wd, dor));
+                hiddenConfig.push_back(HiddenLayerConfig(hn, wd));
                 break;
             }case 1:{
                 softmaxConfig.NumClasses = get_word_int(layers[i], "NUM_CLASSES");
@@ -188,14 +188,7 @@ readConfigFile(string filepath, bool showinfo){
     delete_space(str);
     delete_comment(str);
     get_layers_config(str);
-
     is_gradient_checking = get_word_bool(str, "IS_GRADIENT_CHECKING");
-    
-    if(is_gradient_checking){
-        for(int i = 0; i < hiddenConfig.size(); i++){
-            hiddenConfig[i].DropoutRate = 1.0;
-        }
-    }
     
     use_log = get_word_bool(str, "USE_LOG");
     batch_size = get_word_int(str, "BATCH_SIZE");
@@ -210,6 +203,7 @@ readConfigFile(string filepath, bool showinfo){
     iter_per_epo = get_word_int(str, "ITER_PER_EPO");
     nGram = get_word_int(str, "NGRAM");
     training_percent = get_word_double(str, "TRAINING_PERCENT");
+    use_word2vec = get_word_bool(str, "USE_WORD2VEC");
     
     if(!showinfo) return;
     cout<<"****************************************************************************"<<endl
@@ -220,10 +214,8 @@ readConfigFile(string filepath, bool showinfo){
         cout<<"***** hidden layer: "<<i<<" *****"<<endl;
         cout<<"NumHiddenNeurons = "<<hiddenConfig[i].NumHiddenNeurons<<endl;
         cout<<"WeightDecay = "<<hiddenConfig[i].WeightDecay<<endl;
-        cout<<"DropoutRate = "<<hiddenConfig[i].DropoutRate<<endl<<endl;
     }
     cout<<"***** softmax layer: *****"<<endl;
-//    cout<<"NumClasses = "<<softmaxConfig.NumClasses<<endl;
     cout<<"WeightDecay = "<<softmaxConfig.WeightDecay<<endl<<endl;
     cout<<"***** general config *****"<<endl;
     cout<<"is_gradient_checking = "<<is_gradient_checking<<endl;
@@ -235,5 +227,6 @@ readConfigFile(string filepath, bool showinfo){
     cout<<"iteration per epoch = "<<iter_per_epo<<endl;
     cout<<"n gram = "<<nGram<<endl;
     cout<<"training percent = "<<training_percent<<endl;
+    cout<<"use_word2vec = "<<use_word2vec<<endl;
     cout<<endl;
 }

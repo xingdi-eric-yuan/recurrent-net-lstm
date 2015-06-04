@@ -171,13 +171,35 @@ getSample(const std::vector<std::vector<int> >& src1, std::vector<Mat>& dst1, co
         Mat tmp = Mat::zeros(re_wordmap.size(), _size, CV_64FC1);
         dst1.push_back(tmp);
     }
-
     random_shuffle(sample_vec.begin(), sample_vec.end());
     for(int i = 0; i < _size; i++){
         int randomNum = sample_vec[i];
         for(int j = 0; j < T; j++){
             Mat tmp1 = oneOfN(src1[randomNum][j], re_wordmap.size());
             Rect roi = Rect(i, 0, 1, re_wordmap.size());
+            Mat tmp2 = dst1[j](roi);
+            tmp1.copyTo(tmp2);
+            dst2.ATD(j, i) = src2[randomNum][j];
+        }
+    }
+}
+
+void 
+getSample(const std::vector<std::vector<int> >& src1, std::vector<Mat>& dst1, const std::vector<std::vector<int> >& src2, Mat& dst2, std::vector<string> &re_wordmap, std::unordered_map<std::string, Mat> &wordvec){
+    dst1.clear();
+    int _size = dst2.cols;
+    int T = src1[0].size();
+    for(int i = 0; i < T; i++){
+        Mat tmp = Mat::zeros(word_vec_len, _size, CV_64FC1);
+        dst1.push_back(tmp);
+    }
+    random_shuffle(sample_vec.begin(), sample_vec.end());
+    for(int i = 0; i < _size; i++){
+        int randomNum = sample_vec[i];
+        for(int j = 0; j < T; j++){
+            Mat tmp1;
+            wordvec[re_wordmap[src1[randomNum][j]]].copyTo(tmp1);
+            Rect roi = Rect(i, 0, 1, word_vec_len);
             Mat tmp2 = dst1[j](roi);
             tmp1.copyTo(tmp2);
             dst2.ATD(j, i) = src2[randomNum][j];
@@ -205,6 +227,26 @@ getDataMat(const std::vector<std::vector<int> >& src, std::vector<Mat>& dst, std
 }
 
 void 
+getDataMat(const std::vector<std::vector<int> >& src, std::vector<Mat>& dst, std::vector<string> &re_wordmap, std::unordered_map<string, Mat> &wordvec){
+    dst.clear();
+    int _size = src.size();
+    int T = src[0].size();
+    for(int i = 0; i < T; i++){
+        Mat tmp = Mat::zeros(word_vec_len, _size, CV_64FC1);
+        dst.push_back(tmp);
+    }
+    for(int i = 0; i < _size; i++){
+        for(int j = 0; j < T; j++){
+            Mat tmp1;
+            wordvec[re_wordmap[src[i][j]]].copyTo(tmp1);
+            Rect roi = Rect(i, 0, 1, word_vec_len);
+            Mat tmp2 = dst[j](roi);
+            tmp1.copyTo(tmp2);
+        }
+    }
+}
+
+void 
 getLabelMat(const std::vector<std::vector<int> >& src, Mat& dst){
     int _size = dst.cols;
     int T = src[0].size();
@@ -212,12 +254,3 @@ getLabelMat(const std::vector<std::vector<int> >& src, Mat& dst){
         dst.ATD(0, i) = src[i][T - 1];
     }
 }
-
-
-
-
-
-
-
-
-

@@ -5,7 +5,8 @@ using namespace std;
 
 void
 trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int> > &y, std::vector<LSTMl> &HiddenLayers, Smr &smr, 
-             const std::vector<std::vector<int> > &tx, std::vector<std::vector<int> > &ty, std::vector<string> &re_wordmap
+             const std::vector<std::vector<int> > &tx, std::vector<std::vector<int> > &ty, std::vector<string> &re_wordmap, 
+             unordered_map<string, Mat> &wordvec
              ){
     if (is_gradient_checking){
         batch_size = 2;
@@ -31,7 +32,11 @@ trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<in
                 cout<<"epoch: "<<epo<<", iter: "<<k;//<<endl;     
                 std::vector<Mat> sampleX;
                 Mat sampleY = Mat::zeros(nGram, batch_size, CV_64FC1);
-                getSample(x, sampleX, y, sampleY, re_wordmap);
+                if(use_word2vec){
+                    getSample(x, sampleX, y, sampleY, re_wordmap, wordvec);
+                }else{
+                    getSample(x, sampleX, y, sampleY, re_wordmap);
+                }
                 if(getNetworkCost(sampleX, sampleY, HiddenLayers, smr)){
                     // softmax update
                     smud.update(smr, k);
@@ -43,11 +48,10 @@ trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<in
                 std::vector<Mat>().swap(sampleX);
             }
             if(!is_gradient_checking){
-                
                 cout<<"Test training data: "<<endl;;
-                testNetwork(x, y, HiddenLayers, smr, re_wordmap);
+                testNetwork(x, y, HiddenLayers, smr, re_wordmap, wordvec);
                 cout<<"Test testing data: "<<endl;;
-                testNetwork(tx, ty, HiddenLayers, smr, re_wordmap);
+                testNetwork(tx, ty, HiddenLayers, smr, re_wordmap, wordvec);
                 //*/
             }
         }

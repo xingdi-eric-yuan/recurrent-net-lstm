@@ -11,6 +11,7 @@ std::vector<int> sample_vec;
 ///////////////////////////////////
 bool is_gradient_checking = false;
 bool use_log = false;
+bool use_word2vec = false;
 int batch_size = 1;
 int log_iter = 0;
 int non_linearity = 2;
@@ -48,20 +49,26 @@ run(){
     std::unordered_map<string, int> wordmap;
     std::vector<string> re_wordmap;
     getWordMap(trainData, wordmap, re_wordmap);
-    // For 1 of n encoding method, the input size of rnn is the size
-    // of wordmap (one "1" and all others are "0")
-    word_vec_len = re_wordmap.size();
-
     std::vector<std::vector<int> > trainX;
     std::vector<std::vector<int> > trainY;
+    std::vector<std::vector<int> > testX;
+    std::vector<std::vector<int> > testY;
+    unordered_map<string, Mat> wordvec;
+    if(use_word2vec){
+        word_vec_len = 300;
+        readWordvec("dataset/wordvecs.txt", wordvec);
+        cout<<"Successfully read wordvecs, map size is "<<wordvec.size()<<endl;
+    }else{
+        // For 1 of n encoding method, the input size of rnn is the size
+        // of wordmap (one "1" and all others are "0")
+        word_vec_len = re_wordmap.size();
+    }
+
     // Break sentences into sub-sentences have length of nGram,
     // padding method is used
     resolutioner(trainData, trainX, trainY, wordmap);
-    cout<<"there are "<<trainX.size()<<" training data..."<<endl;
     cout<<"there are "<<labelmap.size()<<" kind of labels..."<<endl;
-
-    std::vector<std::vector<int> > testX;
-    std::vector<std::vector<int> > testY;
+    cout<<"there are "<<trainX.size()<<" training data..."<<endl;
     resolutioner(testData, testX, testY, wordmap);
     cout<<"there are "<<testX.size()<<" test data..."<<endl;
 
@@ -72,9 +79,8 @@ run(){
     std::vector<LSTMl> HiddenLayers;
     Smr smr;
     rnnInitPrarms(HiddenLayers, smr);
-
     // Train network using Back Propogation
-    trainNetwork(trainX, trainY, HiddenLayers, smr, testX, testY, re_wordmap);
+    trainNetwork(trainX, trainY, HiddenLayers, smr, testX, testY, re_wordmap, wordvec);
     
     HiddenLayers.clear();
     trainData.clear();

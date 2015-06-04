@@ -3,8 +3,27 @@
 using namespace std;
 using namespace cv;
 
+void
+readWordvec(std::string path, unordered_map<string, Mat> &wordvec){
 
-/////////////label map!!!!
+    ifstream infile(path);
+    string line;
+    while (getline(infile, line)){
+        istringstream iss(line);
+        string tmpstr;
+        iss >> tmpstr;
+        Mat tmpmat = Mat::zeros(word_vec_len, 1, CV_64FC1);
+        double tmpdouble = 0.0;
+        for(int i = 0; i < word_vec_len; ++i){
+            iss >> tmpdouble;
+            tmpmat.ATD(i, 0) = tmpdouble;
+        }
+        wordvec[tmpstr] = tmpmat;
+    }
+    Mat tmpmat = Mat::zeros(word_vec_len, 1, CV_64FC1);
+    wordvec["___PADDING___"] = tmpmat;
+}
+
 void
 readDataset(std::string path, 
     std::vector<std::vector<singleWord> >& trainData, 

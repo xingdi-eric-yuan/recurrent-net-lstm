@@ -19,6 +19,9 @@ make
 ##Structure and Algorithm
 See [my tech-blog](http://eric-yuan.me/rnn2-lstm/).
 
+##UPDATES
+* word2vec supported.
+
 ##TODO
 bi-directional ...
 

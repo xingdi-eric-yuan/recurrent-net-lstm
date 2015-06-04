@@ -23,7 +23,10 @@ void breakString(string , std::vector<string> &);
 
 Mat oneOfN(int, int);
 
-void getSample(const std::vector<std::vector<int> >&, std::vector<Mat>&, const std::vector<std::vector<int> >&, Mat&, std::vector<string> &);
+void getSample(const std::vector<std::vector<int> >&, std::vector<Mat>&, const std::vector<std::vector<int> >&, Mat&, std::vector<string>&);
+void getSample(const std::vector<std::vector<int> >&, std::vector<Mat>&, const std::vector<std::vector<int> >&, Mat&, std::vector<string>&, std::unordered_map<std::string, Mat>&);
 
-void getDataMat(const std::vector<std::vector<int> >& , std::vector<Mat>& , std::vector<string> &);
+void getDataMat(const std::vector<std::vector<int> >&, std::vector<Mat>&, std::vector<string>&);
+void getDataMat(const std::vector<std::vector<int> >&, std::vector<Mat>&, std::vector<string>&, std::unordered_map<string, Mat>&);
+
 void getLabelMat(const std::vector<std::vector<int> >& , Mat&);
