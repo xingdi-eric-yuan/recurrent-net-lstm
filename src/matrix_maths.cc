@@ -12,12 +12,13 @@ Reciprocal(const double &s){
 
 Mat 
 Reciprocal(const Mat &M){
-    return 1.0 / M;
+    return div(1.0, M);
 }
 
 Mat 
 sigmoid(const Mat &M){
-    return 1.0 / (exp(-M) + 1.0);
+    return div(1.0, (exp(-M) + 1.0));
+//    return 1.0 / (exp(-M) + 1.0);
 }
 
 Mat 
@@ -133,6 +134,18 @@ Mat
 exp(const Mat &src){
     Mat dst;
     exp(src, dst);
+    return dst;
+}
+
+Mat 
+div(double x, const Mat &src){
+    Mat dst;
+    src.copyTo(dst);
+    for(int i = 0; i < dst.rows; i++){
+        for(int j = 0; j < dst.cols; j++){
+            dst.ATD(i, j) = x / dst.ATD(i, j);
+        }
+    }
     return dst;
 }
 

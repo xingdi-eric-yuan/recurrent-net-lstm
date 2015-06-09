@@ -1,7 +1,7 @@
 #long short-term memory recurrent net
 =====================
 
-Uni-directional LSTM recurrent neural networks (C++ / OpenCV).
+Bi-directional LSTM recurrent neural networks (C++ / OpenCV).
 
 To run this code, you should have 
 * OpenCV.
@@ -21,9 +21,11 @@ See [my tech-blog](http://eric-yuan.me/rnn2-lstm/).
 
 ##UPDATES
 * word2vec supported.
+* bi-directional LSTM.
+* CoNLL04 dataset support.
 
 ##TODO
-bi-directional ...
+* bug fixes...
 
 ##Config Files
 

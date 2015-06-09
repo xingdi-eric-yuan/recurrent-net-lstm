@@ -9,8 +9,8 @@
 *******************************************************/
 
 IS_GRADIENT_CHECKING = false;
-USE_LOG = false;
-BATCH_SIZE = 100;
+USE_LOG = true;
+BATCH_SIZE = 50;
 NON_LINEARITY = NL_TANH;
 
 TRAINING_EPOCHS = 50;
@@ -21,7 +21,7 @@ MOMENTUM_D2_INIT = 0.50;
 MOMENTUM_W_ADJUST = 0.95;
 MOMENTUM_D2_ADJUST = 0.90;
 USE_WORD2VEC = true;
-NGRAM = 4;
+NGRAM = 5;
 TRAINING_PERCENT = 0.80;
 
 /*******************************************************
@@ -32,7 +32,7 @@ TRAINING_PERCENT = 0.80;
 
 $
 LAYER = HIDDEN;
-NUM_HIDDEN_NEURONS = 512;
+NUM_HIDDEN_NEURONS = 256;
 DROPOUT_RATE = 1.0;
 WEIGHT_DECAY = 1e-8;
 &

@@ -25,6 +25,7 @@ Mat getBernoulliMatrix(int, int, double);
 
 // Follows are OpenCV maths
 Mat exp(const Mat&);
+Mat div(double, const Mat&);
 Mat log(const Mat&);
 Mat reduce(const Mat&, int, int);
 Mat divide(const Mat&, const Mat&);

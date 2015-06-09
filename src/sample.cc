@@ -39,7 +39,11 @@ run(){
     std::unordered_map<string, int> labelmap;
     std::vector<string> re_labelmap;
     readDataset("dataset/news_tagged_data.txt", trainData, testData, labelmap, re_labelmap);
-    cout<<"Successfully read dataset, training data size is "<<trainData.size()<<", test data size is "<<testData.size()<<endl;
+    //readDataset("dataset/CoNLL04/words.train", "dataset/CoNLL04/ne.train.pred",
+    //            "dataset/CoNLL04/words.test", "dataset/CoNLL04/ne.test.pred", 
+    //            trainData, testData, labelmap, re_labelmap);
+
+    cout<<"Successfully read dataset, there're "<<trainData.size()<<" sentences in training set, and "<<testData.size()<<" sentences in test set."<<endl;
     softmaxConfig.NumClasses = labelmap.size();
 
     // change all number-word into "__DIGIT__"
@@ -58,19 +62,21 @@ run(){
         word_vec_len = 300;
         readWordvec("dataset/wordvecs.txt", wordvec);
         cout<<"Successfully read wordvecs, map size is "<<wordvec.size()<<endl;
+        cout<<"The dimension of network input is "<<word_vec_len<<endl;
     }else{
         // For 1 of n encoding method, the input size of rnn is the size
         // of wordmap (one "1" and all others are "0")
         word_vec_len = re_wordmap.size();
+        cout<<"The dimension of network input is "<<word_vec_len<<endl;
     }
 
     // Break sentences into sub-sentences have length of nGram,
     // padding method is used
     resolutioner(trainData, trainX, trainY, wordmap);
-    cout<<"there are "<<labelmap.size()<<" kind of labels..."<<endl;
-    cout<<"there are "<<trainX.size()<<" training data..."<<endl;
+    cout<<"there are "<<labelmap.size()<<" classes of labels..."<<endl;
+    cout<<"there are "<<trainX.size()<<" sub-sentences in training data..."<<endl;
     resolutioner(testData, testX, testY, wordmap);
-    cout<<"there are "<<testX.size()<<" test data..."<<endl;
+    cout<<"there are "<<testX.size()<<" sub-sentences in test data..."<<endl;
 
     int nsamples = trainX.size();
     for(int i = 0; i < nsamples; i++){

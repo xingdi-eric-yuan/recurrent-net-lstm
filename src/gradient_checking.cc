@@ -2,86 +2,46 @@
 
 using namespace cv;
 using namespace std;
-
+void 
+gradient_checking(std::vector<Mat> &sampleX, Mat &sampleY, std::vector<LSTMl> &hLayers, Smr &smr, Mat &gradient, Mat* alt){
+    Mat grad;
+    gradient.copyTo(grad);
+    double epsilon = 1e-4;
+    for(int i = 0; i < alt -> rows; i++){
+        for(int j = 0; j < alt -> cols; j++){
+            double memo = alt -> ATD(i, j);
+            alt -> ATD(i, j) = memo + epsilon;
+            getNetworkCost(sampleX, sampleY, hLayers, smr);
+            double value1 = smr.cost;
+            alt -> ATD(i, j) = memo - epsilon;
+            getNetworkCost(sampleX, sampleY, hLayers, smr);
+            double value2 = smr.cost;
+            double tp = (value1 - value2) / (2 * epsilon);
+            if(tp == 0.0 && grad.ATD(i, j) == 0.0) cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
+            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
+            alt -> ATD(i, j) = memo;
+        }
+    }
+    grad.release();
+}
 
 void
 gradientChecking_SoftmaxLayer(std::vector<LSTMl> &hLayers, Smr &smr, std::vector<Mat> &sampleX, Mat &sampleY){
     //Gradient Checking (remember to disable this part after you're sure the 
     //cost function and dJ function are correct)
     getNetworkCost(sampleX, sampleY, hLayers, smr);
+    Mat *p;
+    cout<<"################################################"<<endl;
+    cout<<"## test softmax layer !!!! --- forward"<<endl;
+    cout<<"################################################"<<endl;
+    p = &(smr.W_left);
+    gradient_checking(sampleX, sampleY, hLayers, smr, smr.Wgrad_left, p);
 
-    Mat grad;
-    smr.Wgrad.copyTo(grad);
     cout<<"################################################"<<endl;
-    cout<<"## test softmax layer !!!!"<<endl;
+    cout<<"## test softmax layer !!!! --- backward"<<endl;
     cout<<"################################################"<<endl;
-    double epsilon = 1e-4;
-    for(int i = 0; i < smr.W.rows; i++){
-        for(int j = 0; j < smr.W.cols; j++){
-            double memo = smr.W.ATD(i, j);
-            smr.W.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            smr.W.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            smr.W.ATD(i, j) = memo;
-        }
-    }
-    grad.release();
-    
-}
-
-void
-gradientChecking_RecurrentLayer(std::vector<Rl> &hLayers, Smr &smr, std::vector<Mat> &sampleX, Mat &sampleY, int layer){
-    //Gradient Checking (remember to disable this part after you're sure the 
-    //cost function and dJ function are correct)
-    getNetworkCost(sampleX, sampleY, hLayers, smr);
-    Mat grad;
-    double epsilon = 1e-4;
-    
-    hLayers[layer].Wgrad.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test Recurrent layer["<<layer<<"] W !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].W.rows; i++){
-        for(int j = 0; j < hLayers[layer].W.cols; j++){
-            double memo = hLayers[layer].W.ATD(i, j);
-            hLayers[layer].W.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].W.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].W.ATD(i, j) = memo;
-        }
-    }
-    hLayers[layer].Ugrad.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test Recurrent layer["<<layer<<"] U !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].U.rows; i++){
-        for(int j = 0; j < hLayers[layer].U.cols; j++){
-            double memo = hLayers[layer].U.ATD(i, j);
-            hLayers[layer].U.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].U.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].U.ATD(i, j) = memo;
-        }
-    }
-    grad.release();
+    p = &(smr.W_right);
+    gradient_checking(sampleX, sampleY, hLayers, smr, smr.Wgrad_right, p);    
 }
 
 void
@@ -89,205 +49,115 @@ gradientChecking_LSTMLayer(std::vector<LSTMl> &hLayers, Smr &smr, std::vector<Ma
     //Gradient Checking (remember to disable this part after you're sure the 
     //cost function and dJ function are correct)
     getNetworkCost(sampleX, sampleY, hLayers, smr);
-    Mat grad;
-    double epsilon = 1e-4;
-    //cout.precision(18);
-    /*
-    hLayers[layer].Wgrad_output.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] W !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].W_output.rows; i++){
-        for(int j = 0; j < hLayers[layer].W_output.cols; j++){
-            double memo = hLayers[layer].W_output.ATD(i, j);
-            hLayers[layer].W_output.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].W_output.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            //cout<<"value1 = "<<value1<<", value2 = "<<value2<<endl;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].W_output.ATD(i, j) = memo;
-        }
-    }
-    
-//*/
-/*
-    hLayers[layer].Ugrad_output.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] U !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].U_output.rows; i++){
-        for(int j = 0; j < hLayers[layer].U_output.cols; j++){
-            double memo = hLayers[layer].U_output.ATD(i, j);
-            hLayers[layer].U_output.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].U_output.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            //cout<<"value1 = "<<value1<<", value2 = "<<value2<<endl;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].U_output.ATD(i, j) = memo;
-        }
-    }
-    //*/
-   /*
-    hLayers[layer].Wgrad_input.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] W !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    cout<<hLayers[layer].W_input.size()<<endl;
-    for(int i = 0; i < hLayers[layer].W_input.rows; i++){
-        for(int j = 0; j < hLayers[layer].W_input.cols; j++){
-            double memo = hLayers[layer].W_input.ATD(i, j);
-            hLayers[layer].W_input.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].W_input.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].W_input.ATD(i, j) = memo;
-        }
-    }
-   
-    hLayers[layer].Ugrad_input.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] U !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].U_input.rows; i++){
-        for(int j = 0; j < hLayers[layer].U_input.cols; j++){
-            double memo = hLayers[layer].U_input.ATD(i, j);
-            hLayers[layer].U_input.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].U_input.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            //cout<<"value1 = "<<value1<<", value2 = "<<value2<<endl;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].U_input.ATD(i, j) = memo;
-        }
-    }
-  //*/
-   /*
-    hLayers[layer].Wgrad_cell.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] W !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    cout<<hLayers[layer].W_cell.size()<<endl;
-    for(int i = 0; i < hLayers[layer].W_cell.rows; i++){
-        for(int j = 0; j < hLayers[layer].W_cell.cols; j++){
-            double memo = hLayers[layer].W_cell.ATD(i, j);
-            hLayers[layer].W_cell.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].W_cell.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].W_cell.ATD(i, j) = memo;
-        }
-    }
-   
-    hLayers[layer].Ugrad_cell.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] U !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].U_cell.rows; i++){
-        for(int j = 0; j < hLayers[layer].U_cell.cols; j++){
-            double memo = hLayers[layer].U_cell.ATD(i, j);
-            hLayers[layer].U_cell.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].U_cell.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            //cout<<"value1 = "<<value1<<", value2 = "<<value2<<endl;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].U_cell.ATD(i, j) = memo;
-        }
-    }
-  //*/
-  //
-  
-/*
-    hLayers[layer].Wgrad_forget.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] W !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].W_forget.rows; i++){
-        for(int j = 0; j < hLayers[layer].W_forget.cols; j++){
-            double memo = hLayers[layer].W_forget.ATD(i, j);
-            hLayers[layer].W_forget.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].W_forget.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].W_forget.ATD(i, j) = memo;
-        }
-    }
-  
-    hLayers[layer].Ugrad_forget.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] U !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].U_forget.rows; i++){
-        for(int j = 0; j < hLayers[layer].U_forget.cols; j++){
-            double memo = hLayers[layer].U_forget.ATD(i, j);
-            hLayers[layer].U_forget.ATD(i, j) = memo + epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value1 = smr.cost;
-            hLayers[layer].U_forget.ATD(i, j) = memo - epsilon;
-            getNetworkCost(sampleX, sampleY, hLayers, smr);
-            double value2 = smr.cost;
-            //cout<<"value1 = "<<value1<<", value2 = "<<value2<<endl;
-            double tp = (value1 - value2) / (2 * epsilon);
-            if(tp == 0.0 && grad.ATD(i, j) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-            else cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<tp / grad.ATD(i, j)<<endl;
-            hLayers[layer].U_forget.ATD(i, j) = memo;
-        }
-    }
-  //*/
+    int which_to_check = 1;
+    Mat *p;
+    // which 2 check
+    // 0 : all
+    // 1 : output
+    // 2 : cell
+    // 3 : forget
+    // 4 : input
+    if(which_to_check == 0 || which_to_check == 1){
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer output W --- forward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].W_output_left);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_left, p);
 
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer output W --- backward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].W_output_right);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_right, p);
 
-/*
-    hLayers[layer].Vgrad_input -> diagonal.copyTo(grad);
-    cout<<"################################################"<<endl;
-    cout<<"## test LSTM layer["<<layer<<"] W !!!!"<<endl;
-    cout<<"################################################"<<endl;
-    for(int i = 0; i < hLayers[layer].V_input -> diagonal.rows; i++){
-        double memo = hLayers[layer].V_input -> diagonal.ATD(i, 0);
-        hLayers[layer].V_input -> diagonal.ATD(i, 0) = memo + epsilon;
-        getNetworkCost(sampleX, sampleY, hLayers, smr);
-        double value1 = smr.cost;
-        hLayers[layer].V_input -> diagonal.ATD(i, 0) = memo - epsilon;
-        getNetworkCost(sampleX, sampleY, hLayers, smr);
-        double value2 = smr.cost;
-        double tp = (value1 - value2) / (2 * epsilon);
-        if(tp == 0.0 && grad.ATD(i, 0) == 0.0) ;//cout<<i<<", "<<j<<", "<<tp<<", "<<grad.ATD(i, j)<<", "<<1<<endl;
-        else cout<<i<<", "<<0<<", "<<tp<<", "<<grad.ATD(i, 0)<<", "<<tp / grad.ATD(i, 0)<<endl;
-        hLayers[layer].V_input -> diagonal.ATD(i, 0) = memo;
-    }   
-*/
-    grad.release();
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer output U --- forward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].U_output_left);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_output_left, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer output U --- backward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].U_output_right);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_output_right, p);
+    }elif(which_to_check == 0 || which_to_check == 2){
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer cell W --- forward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].W_cell_left);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_cell_left, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer cell W --- backward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].W_cell_right);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_cell_right, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer cell U --- forward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].U_cell_left);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_cell_left, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer cell U --- backward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].U_cell_right);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_cell_right, p);
+    }elif(which_to_check == 0 || which_to_check == 3){
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer forget W --- forward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].W_forget_left);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_forget_left, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer forget W --- backward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].W_forget_right);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_forget_right, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer forget U --- forward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].U_forget_left);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_forget_left, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer forget U --- backward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].U_forget_right);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_forget_right, p);
+
+    }elif(which_to_check == 0 || which_to_check == 4){
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer input W --- forward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].W_input_left);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_input_left, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer input W --- backward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].W_input_right);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_input_right, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer input U --- forward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].U_input_left);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_input_left, p);
+
+        cout<<"################################################"<<endl;
+        cout<<"## test LSTM layer input U --- backward"<<endl;
+        cout<<"################################################"<<endl;
+        p = &(hLayers[layer].U_input_right);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_input_right, p);
+
+    }else{
+        ; // do nothing
+    }
+
 }
 

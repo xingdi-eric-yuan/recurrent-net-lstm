@@ -194,15 +194,17 @@ getSample(const std::vector<std::vector<int> >& src1, std::vector<Mat>& dst1, co
         dst1.push_back(tmp);
     }
     random_shuffle(sample_vec.begin(), sample_vec.end());
-    for(int i = 0; i < _size; i++){
+    int fail = 0;
+    for(int i = 0; i - fail < _size; i++){
         int randomNum = sample_vec[i];
         for(int j = 0; j < T; j++){
             Mat tmp1;
+            if(wordvec.find(re_wordmap[src1[randomNum][j]]) == wordvec.end()) {++ fail; break;}//cout<<"@@@@@@@@@"<<re_wordmap[src1[randomNum][j]]<<endl;
             wordvec[re_wordmap[src1[randomNum][j]]].copyTo(tmp1);
-            Rect roi = Rect(i, 0, 1, word_vec_len);
+            Rect roi = Rect(i - fail, 0, 1, word_vec_len);
             Mat tmp2 = dst1[j](roi);
             tmp1.copyTo(tmp2);
-            dst2.ATD(j, i) = src2[randomNum][j];
+            dst2.ATD(j, i - fail) = src2[randomNum][j];
         }
     }
 }

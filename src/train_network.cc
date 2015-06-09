@@ -12,8 +12,11 @@ trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<in
         batch_size = 2;
         std::vector<Mat> sampleX;
         Mat sampleY = Mat::zeros(nGram, batch_size, CV_64FC1);
-        getSample(x, sampleX, y, sampleY, re_wordmap);
-        
+        if(use_word2vec){
+            getSample(x, sampleX, y, sampleY, re_wordmap, wordvec);
+        }else{
+            getSample(x, sampleX, y, sampleY, re_wordmap);
+        }
         for(int i = 0; i < hiddenConfig.size(); i++){
             gradientChecking_LSTMLayer(HiddenLayers, smr, sampleX, sampleY, i);   
         }
@@ -23,7 +26,7 @@ trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<in
         cout<<"****************************************************************************"<<endl
             <<"**                       TRAINING NETWORK......                             "<<endl
             <<"****************************************************************************"<<endl<<endl;
-        
+       
         softmaxUpdater smud(smr);
         LSTMLayerUpdater LSTMud(HiddenLayers);
         int k = 0;
@@ -48,17 +51,17 @@ trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<in
                 std::vector<Mat>().swap(sampleX);
             }
             if(!is_gradient_checking){
+                
                 cout<<"Test training data: "<<endl;;
                 testNetwork(x, y, HiddenLayers, smr, re_wordmap, wordvec);
                 cout<<"Test testing data: "<<endl;;
-                testNetwork(tx, ty, HiddenLayers, smr, re_wordmap, wordvec);
+                testNetwork(tx, ty, HiddenLayers, smr, re_wordmap, wordvec);   
+                if(use_log){
+                    save2XML("log", i2str(k), HiddenLayers, smr, re_wordmap);
+                }
                 //*/
             }
         }
-        
     }
 }
-
-
-
 
