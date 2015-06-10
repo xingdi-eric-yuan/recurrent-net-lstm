@@ -199,7 +199,7 @@ getSample(const std::vector<std::vector<int> >& src1, std::vector<Mat>& dst1, co
         int randomNum = sample_vec[i];
         for(int j = 0; j < T; j++){
             Mat tmp1;
-            if(wordvec.find(re_wordmap[src1[randomNum][j]]) == wordvec.end()) {++ fail; break;}//cout<<"@@@@@@@@@"<<re_wordmap[src1[randomNum][j]]<<endl;
+            if(wordvec.find(re_wordmap[src1[randomNum][j]]) == wordvec.end()) {++ fail; break;}
             wordvec[re_wordmap[src1[randomNum][j]]].copyTo(tmp1);
             Rect roi = Rect(i - fail, 0, 1, word_vec_len);
             Mat tmp2 = dst1[j](roi);
