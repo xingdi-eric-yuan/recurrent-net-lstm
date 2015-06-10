@@ -39,24 +39,25 @@ run(){
     std::unordered_map<string, int> labelmap;
     std::vector<string> re_labelmap;
     //readDataset("dataset/news_tagged_data.txt", trainData, testData, labelmap, re_labelmap);
-    readDataset("dataset/CoNLL04/words.train", "dataset/CoNLL04/ne.train.pred",
-                "dataset/CoNLL04/words.test", "dataset/CoNLL04/ne.test.pred", 
+    readDataset("dataset/CoNLL04/trainData.txt", "dataset/CoNLL04/ne.train.pred",
+                "dataset/CoNLL04/testData.txt", "dataset/CoNLL04/ne.test.pred", 
                 trainData, testData, labelmap, re_labelmap);
 
     cout<<"Successfully read dataset, there're "<<trainData.size()<<" sentences in training set, and "<<testData.size()<<" sentences in test set."<<endl;
 /*
 // for word2vec
     ofstream fout;
-    fout.open("sentences.txt");
+    fout.open("trainData.txt");
     for(int i = 0; i < trainData.size(); i++){
         for(int j = 0; j < trainData[i].size(); j++){
-            fout<<trainData[i][j].word;
+            fout<<trainData[i][j].word<<endl;
             if(j == trainData[i].size() - 1) fout<<endl;
-            else fout<<" ";
         }
     }
     fout.close();
-*/
+
+//*/
+
     softmaxConfig.NumClasses = labelmap.size();
 
     // change all number-word into "__DIGIT__"
@@ -106,6 +107,7 @@ run(){
     std::vector<std::vector<singleWord> >().swap(trainData);
     testData.clear();
     std::vector<std::vector<singleWord> >().swap(trainData);
+    
     end = clock();
     cout<<"Totally used time: "<<((double)(end - start)) / CLOCKS_PER_SEC<<" second"<<endl;
 }
