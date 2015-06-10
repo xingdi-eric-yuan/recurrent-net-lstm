@@ -9,8 +9,6 @@ resultPredict(std::vector<Mat> &x, std::vector<LSTMl> &hLayers, Smr &smr){
     int T = x.size();
     int mid = (int)(T /2.0);
     // hidden layer forward
-
-    // hidden layer forward
     std::vector<std::vector<Mat> > acti_input_left;
     std::vector<std::vector<Mat> > acti_forget_left;
     std::vector<std::vector<Mat> > acti_cell_left;
@@ -163,7 +161,6 @@ testNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<int
     // Test use test set
     // Because it may leads to lack of memory if testing the whole dataset at 
     // one time, so separate the dataset into small pieces of batches (say, batch size = 20).
-    // 
     int batchSize = 50;
     Mat result = Mat::zeros(1, x.size(), CV_64FC1);
     std::vector<std::vector<int> > tmpBatch;
