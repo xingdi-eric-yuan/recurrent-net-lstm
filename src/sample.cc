@@ -74,7 +74,8 @@ run(){
     unordered_map<string, Mat> wordvec;
     if(use_word2vec){
         word_vec_len = 500;
-        readWordvec("dataset/wordvecs.txt", wordvec);
+        // readWordvec("dataset/wordvecs.txt", wordvec);
+        readWordvec("dataset/CoNLL04/CoNLL04wordvecs.txt", wordvec);
         cout<<"Successfully read wordvecs, map size is "<<wordvec.size()<<endl;
         cout<<"The dimension of network input is "<<word_vec_len<<endl;
     }else{
