@@ -38,10 +38,10 @@ run(){
     std::vector<std::vector<singleWord> > testData;
     std::unordered_map<string, int> labelmap;
     std::vector<string> re_labelmap;
-    //readDataset("dataset/news_tagged_data.txt", trainData, testData, labelmap, re_labelmap);
-    readDataset("dataset/CoNLL04/trainData.txt", "dataset/CoNLL04/ne.train.pred",
-                "dataset/CoNLL04/testData.txt", "dataset/CoNLL04/ne.test.pred", 
-                trainData, testData, labelmap, re_labelmap);
+    readDataset("dataset/news_tagged_data.txt", trainData, testData, labelmap, re_labelmap);
+    //readDataset("dataset/CoNLL04/trainData.txt", "dataset/CoNLL04/ne.train.pred",
+    //            "dataset/CoNLL04/testData.txt", "dataset/CoNLL04/ne.test.pred", 
+    //            trainData, testData, labelmap, re_labelmap);
 
     cout<<"Successfully read dataset, there're "<<trainData.size()<<" sentences in training set, and "<<testData.size()<<" sentences in test set."<<endl;
 /*
@@ -73,9 +73,9 @@ run(){
     std::vector<std::vector<int> > testY;
     unordered_map<string, Mat> wordvec;
     if(use_word2vec){
-        word_vec_len = 500;
-        // readWordvec("dataset/wordvecs.txt", wordvec);
-        readWordvec("dataset/CoNLL04/CoNLL04wordvecs.txt", wordvec);
+        word_vec_len = 300;
+        readWordvec("dataset/wordvecs.txt", wordvec);
+        //readWordvec("dataset/CoNLL04/CoNLL04wordvecs.txt", wordvec);
         cout<<"Successfully read wordvecs, map size is "<<wordvec.size()<<endl;
         cout<<"The dimension of network input is "<<word_vec_len<<endl;
     }else{

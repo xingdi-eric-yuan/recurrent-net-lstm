@@ -143,7 +143,7 @@ div(double x, const Mat &src){
     src.copyTo(dst);
     for(int i = 0; i < dst.rows; i++){
         for(int j = 0; j < dst.cols; j++){
-            dst.ATD(i, j) = x / dst.ATD(i, j);
+            if(dst.ATD(i, j) != 0.0) dst.ATD(i, j) = x / dst.ATD(i, j);
         }
     }
     return dst;

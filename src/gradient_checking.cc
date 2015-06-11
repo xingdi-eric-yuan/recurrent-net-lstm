@@ -59,98 +59,98 @@ gradientChecking_LSTMLayer(std::vector<LSTMl> &hLayers, Smr &smr, std::vector<Ma
     // 4 : input
     if(which_to_check == 0 || which_to_check == 1){
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer output W --- forward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] output W --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_output_left);
-        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_left, p);
+        //gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_left, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer output W --- backward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] output W --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_output_right);
-        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_right, p);
+        //gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_right, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer output U --- forward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] output U --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].U_output_left);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_output_left, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer output U --- backward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] output U --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].U_output_right);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_output_right, p);
     }elif(which_to_check == 0 || which_to_check == 2){
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer cell W --- forward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] cell W --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_cell_left);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_cell_left, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer cell W --- backward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] cell W --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_cell_right);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_cell_right, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer cell U --- forward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] cell U --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].U_cell_left);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_cell_left, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer cell U --- backward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] cell U --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].U_cell_right);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_cell_right, p);
     }elif(which_to_check == 0 || which_to_check == 3){
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer forget W --- forward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] forget W --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_forget_left);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_forget_left, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer forget W --- backward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] forget W --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_forget_right);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_forget_right, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer forget U --- forward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] forget U --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].U_forget_left);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_forget_left, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer forget U --- backward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] forget U --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].U_forget_right);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_forget_right, p);
 
     }elif(which_to_check == 0 || which_to_check == 4){
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer input W --- forward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] input W --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_input_left);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_input_left, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer input W --- backward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] input W --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_input_right);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_input_right, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer input U --- forward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] input U --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].U_input_left);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_input_left, p);
 
         cout<<"################################################"<<endl;
-        cout<<"## test LSTM layer input U --- backward"<<endl;
+        cout<<"## test LSTM layer["<<layer<<"] input U --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].U_input_right);
         gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Ugrad_input_right, p);

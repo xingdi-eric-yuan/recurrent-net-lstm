@@ -77,10 +77,10 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
                 tmp_output += hLayers[i - 1].W_output_left * output_h_left[i][j - 1];
             }
             if(i > 1){
-                tmp_input = hLayers[i - 1].U_input_left * output_h_right[i - 1][j];
-                tmp_forget = hLayers[i - 1].U_forget_left * output_h_right[i - 1][j];
-                tmp_cell = hLayers[i - 1].U_cell_left * output_h_right[i - 1][j];
-                tmp_output = hLayers[i - 1].U_output_left * output_h_right[i - 1][j];
+                tmp_input += hLayers[i - 1].U_input_left * output_h_right[i - 1][j];
+                tmp_forget += hLayers[i - 1].U_forget_left * output_h_right[i - 1][j];
+                tmp_cell += hLayers[i - 1].U_cell_left * output_h_right[i - 1][j];
+                tmp_output += hLayers[i - 1].U_output_left * output_h_right[i - 1][j];
             } 
             tmp_input.copyTo(nonlin_input_left[i - 1][j]);
             tmp_forget.copyTo(nonlin_forget_left[i - 1][j]);
@@ -119,10 +119,10 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
                 tmp_output += hLayers[i - 1].W_output_right * output_h_right[i][j + 1];
             }
             if(i > 1){
-                tmp_input = hLayers[i - 1].U_input_right * output_h_left[i - 1][j];
-                tmp_forget = hLayers[i - 1].U_forget_right * output_h_left[i - 1][j];
-                tmp_cell = hLayers[i - 1].U_cell_right * output_h_left[i - 1][j];
-                tmp_output = hLayers[i - 1].U_output_right * output_h_left[i - 1][j];
+                tmp_input += hLayers[i - 1].U_input_right * output_h_left[i - 1][j];
+                tmp_forget += hLayers[i - 1].U_forget_right * output_h_left[i - 1][j];
+                tmp_cell += hLayers[i - 1].U_cell_right * output_h_left[i - 1][j];
+                tmp_output += hLayers[i - 1].U_output_right * output_h_left[i - 1][j];
             }
             tmp_input.copyTo(nonlin_input_right[i - 1][j]);
             tmp_forget.copyTo(nonlin_forget_right[i - 1][j]);
@@ -479,7 +479,15 @@ cout<<"******"<<endl;
                 tmp2 += pow(hLayers[i - 1].W_input_left.t(), 2.0) * deltad2_input_left[i][j + 1];
                 tmp2 += pow(hLayers[i - 1].W_forget_left.t(), 2.0) * deltad2_forget_left[i][j + 1];
                 tmp2 += pow(hLayers[i - 1].W_output_left.t(), 2.0) * deltad2_output_left[i][j + 1];
-            }
+            } 
+            tmp += hLayers[i].U_cell_right.t() * delta_cell_right[i + 1][j];
+            tmp += hLayers[i].U_input_right.t() * delta_input_right[i + 1][j];
+            tmp += hLayers[i].U_forget_right.t() * delta_forget_right[i + 1][j];
+            tmp += hLayers[i].U_output_right.t() * delta_output_right[i + 1][j];
+            tmp2 += pow(hLayers[i].U_cell_right.t(), 2.0) * deltad2_cell_right[i + 1][j];
+            tmp2 += pow(hLayers[i].U_input_right.t(), 2.0) * deltad2_input_right[i + 1][j];
+            tmp2 += pow(hLayers[i].U_forget_right.t(), 2.0) * deltad2_forget_right[i + 1][j];
+            tmp2 += pow(hLayers[i].U_output_right.t(), 2.0) * deltad2_output_right[i + 1][j];
             tmp.copyTo(epsilon_output_left[i][j]);
             tmp2.copyTo(epsilond2_output_left[i][j]);
             // output gates
@@ -554,6 +562,14 @@ cout<<"******"<<endl;
                 tmp2 += pow(hLayers[i - 1].W_forget_right.t(), 2.0) * deltad2_forget_right[i][j - 1];
                 tmp2 += pow(hLayers[i - 1].W_output_right.t(), 2.0) * deltad2_output_right[i][j - 1];
             }
+            tmp += hLayers[i].U_cell_left.t() * delta_cell_left[i + 1][j];
+            tmp += hLayers[i].U_input_left.t() * delta_input_left[i + 1][j];
+            tmp += hLayers[i].U_forget_left.t() * delta_forget_left[i + 1][j];
+            tmp += hLayers[i].U_output_left.t() * delta_output_left[i + 1][j];
+            tmp2 += pow(hLayers[i].U_cell_left.t(), 2.0) * deltad2_cell_left[i + 1][j];
+            tmp2 += pow(hLayers[i].U_input_left.t(), 2.0) * deltad2_input_left[i + 1][j];
+            tmp2 += pow(hLayers[i].U_forget_left.t(), 2.0) * deltad2_forget_left[i + 1][j];
+            tmp2 += pow(hLayers[i].U_output_left.t(), 2.0) * deltad2_output_left[i + 1][j];
             tmp.copyTo(epsilon_output_right[i][j]);
             tmp2.copyTo(epsilond2_output_right[i][j]);
             // output gates
@@ -614,36 +630,68 @@ cout<<"******"<<endl;
         // U
         tmp = delta_input_left[i + 1][0] * output_h_left[i][0].t();
         tmp2 = deltad2_input_left[i + 1][0] * pow(output_h_left[i][0].t(), 2.0);
+        if(i > 0){
+            tmp += delta_input_left[i + 1][0] * output_h_right[i][0].t();
+            tmp2 += deltad2_input_left[i + 1][0] * pow(output_h_right[i][0].t(), 2.0);
+        }
         for(int j = 1; j < T; ++j){
             tmp += delta_input_left[i + 1][j] * output_h_left[i][j].t();
             tmp2 += deltad2_input_left[i + 1][j] * pow(output_h_left[i][j].t(), 2.0);
+            if(i > 0){
+                tmp += delta_input_left[i + 1][j] * output_h_right[i][j].t();
+                tmp2 += deltad2_input_left[i + 1][j] * pow(output_h_right[i][j].t(), 2.0);
+            }
         }
         hLayers[i].Ugrad_input_left = tmp / nSamples + hiddenConfig[i].WeightDecay * hLayers[i].U_input_left;
         hLayers[i].Ud2_input_left = tmp2 / nSamples + hiddenConfig[i].WeightDecay;
 
         tmp = delta_forget_left[i + 1][0] * output_h_left[i][0].t();
         tmp2 = deltad2_forget_left[i + 1][0] * pow(output_h_left[i][0].t(), 2.0);
+        if(i > 0){
+            tmp += delta_forget_left[i + 1][0] * output_h_right[i][0].t();
+            tmp2 += deltad2_forget_left[i + 1][0] * pow(output_h_right[i][0].t(), 2.0);
+        }
         for(int j = 1; j < T; ++j){
             tmp += delta_forget_left[i + 1][j] * output_h_left[i][j].t();
             tmp2 += deltad2_forget_left[i + 1][j] * pow(output_h_left[i][j].t(), 2.0);
+            if(i > 0){
+                tmp += delta_forget_left[i + 1][j] * output_h_right[i][j].t();
+                tmp2 += deltad2_forget_left[i + 1][j] * pow(output_h_right[i][j].t(), 2.0);
+            }
         }
         hLayers[i].Ugrad_forget_left = tmp / nSamples + hiddenConfig[i].WeightDecay * hLayers[i].U_forget_left;
         hLayers[i].Ud2_forget_left = tmp2 / nSamples + hiddenConfig[i].WeightDecay;
 
         tmp = delta_cell_left[i + 1][0] * output_h_left[i][0].t();
         tmp2 = deltad2_cell_left[i + 1][0] * pow(output_h_left[i][0].t(), 2.0);
+        if(i > 0){
+            tmp += delta_cell_left[i + 1][0] * output_h_right[i][0].t();
+            tmp2 += deltad2_cell_left[i + 1][0] * pow(output_h_right[i][0].t(), 2.0);
+        }
         for(int j = 1; j < T; ++j){
             tmp += delta_cell_left[i + 1][j] * output_h_left[i][j].t();
             tmp2 += deltad2_cell_left[i + 1][j] * pow(output_h_left[i][j].t(), 2.0);
+            if(i > 0){
+                tmp += delta_cell_left[i + 1][j] * output_h_right[i][j].t();
+                tmp2 += deltad2_cell_left[i + 1][j] * pow(output_h_right[i][j].t(), 2.0);
+            }
         }
         hLayers[i].Ugrad_cell_left = tmp / nSamples + hiddenConfig[i].WeightDecay * hLayers[i].U_cell_left;
         hLayers[i].Ud2_cell_left = tmp2 / nSamples + hiddenConfig[i].WeightDecay;
 
         tmp = delta_output_left[i + 1][0] * output_h_left[i][0].t();
         tmp2 = deltad2_output_left[i + 1][0] * pow(output_h_left[i][0].t(), 2.0);
+        if(i > 0){
+            tmp += delta_output_left[i + 1][0] * output_h_right[i][0].t();
+            tmp2 += deltad2_output_left[i + 1][0] * pow(output_h_right[i][0].t(), 2.0);
+        }
         for(int j = 1; j < T; ++j){
             tmp += delta_output_left[i + 1][j] * output_h_left[i][j].t();
             tmp2 += deltad2_output_left[i + 1][j] * pow(output_h_left[i][j].t(), 2.0);
+            if(i > 0){
+                tmp += delta_output_left[i + 1][j] * output_h_right[i][j].t();
+                tmp2 += deltad2_output_left[i + 1][j] * pow(output_h_right[i][j].t(), 2.0);
+            }
         }
         hLayers[i].Ugrad_output_left = tmp / nSamples + hiddenConfig[i].WeightDecay * hLayers[i].U_output_left;
         hLayers[i].Ud2_output_left = tmp2 / nSamples + hiddenConfig[i].WeightDecay;
@@ -727,36 +775,68 @@ cout<<"******"<<endl;
         // U
         tmp = delta_input_right[i + 1][0] * output_h_right[i][0].t();
         tmp2 = deltad2_input_right[i + 1][0] * pow(output_h_right[i][0].t(), 2.0);
+        if(i > 0){
+            tmp += delta_input_right[i + 1][0] * output_h_left[i][0].t();
+            tmp2 += deltad2_input_right[i + 1][0] * pow(output_h_left[i][0].t(), 2.0);
+        }
         for(int j = 1; j < T; ++j){
             tmp += delta_input_right[i + 1][j] * output_h_right[i][j].t();
             tmp2 += deltad2_input_right[i + 1][j] * pow(output_h_right[i][j].t(), 2.0);
+            if(i > 0){
+                tmp += delta_input_right[i + 1][j] * output_h_left[i][j].t();
+                tmp2 += deltad2_input_right[i + 1][j] * pow(output_h_left[i][j].t(), 2.0);
+            }
         }
         hLayers[i].Ugrad_input_right = tmp / nSamples + hiddenConfig[i].WeightDecay * hLayers[i].U_input_right;
         hLayers[i].Ud2_input_right = tmp2 / nSamples + hiddenConfig[i].WeightDecay;
 
         tmp = delta_forget_right[i + 1][0] * output_h_right[i][0].t();
         tmp2 = deltad2_forget_right[i + 1][0] * pow(output_h_right[i][0].t(), 2.0);
+        if(i > 0){
+            tmp += delta_forget_right[i + 1][0] * output_h_left[i][0].t();
+            tmp2 += deltad2_forget_right[i + 1][0] * pow(output_h_left[i][0].t(), 2.0);
+        }
         for(int j = 1; j < T; ++j){
             tmp += delta_forget_right[i + 1][j] * output_h_right[i][j].t();
             tmp2 += deltad2_forget_right[i + 1][j] * pow(output_h_right[i][j].t(), 2.0);
+            if(i > 0){
+                tmp += delta_forget_right[i + 1][j] * output_h_left[i][j].t();
+                tmp2 += deltad2_forget_right[i + 1][j] * pow(output_h_left[i][j].t(), 2.0);
+            }
         }
         hLayers[i].Ugrad_forget_right = tmp / nSamples + hiddenConfig[i].WeightDecay * hLayers[i].U_forget_right;
         hLayers[i].Ud2_forget_right = tmp2 / nSamples + hiddenConfig[i].WeightDecay;
 
         tmp = delta_cell_right[i + 1][0] * output_h_right[i][0].t();
         tmp2 = deltad2_cell_right[i + 1][0] * pow(output_h_right[i][0].t(), 2.0);
+        if(i > 0){
+            tmp += delta_cell_right[i + 1][0] * output_h_left[i][0].t();
+            tmp2 += deltad2_cell_right[i + 1][0] * pow(output_h_left[i][0].t(), 2.0);
+        }
         for(int j = 1; j < T; ++j){
             tmp += delta_cell_right[i + 1][j] * output_h_right[i][j].t();
             tmp2 += deltad2_cell_right[i + 1][j] * pow(output_h_right[i][j].t(), 2.0);
+            if(i > 0){
+                tmp += delta_cell_right[i + 1][j] * output_h_left[i][j].t();
+                tmp2 += deltad2_cell_right[i + 1][j] * pow(output_h_left[i][j].t(), 2.0);
+            }
         }
         hLayers[i].Ugrad_cell_right = tmp / nSamples + hiddenConfig[i].WeightDecay * hLayers[i].U_cell_right;
         hLayers[i].Ud2_cell_right = tmp2 / nSamples + hiddenConfig[i].WeightDecay;
 
         tmp = delta_output_right[i + 1][0] * output_h_right[i][0].t();
         tmp2 = deltad2_output_right[i + 1][0] * pow(output_h_right[i][0].t(), 2.0);
+        if(i > 0){
+            tmp += delta_output_right[i + 1][0] * output_h_left[i][0].t();
+            tmp2 += deltad2_output_right[i + 1][0] * pow(output_h_left[i][0].t(), 2.0);
+        }
         for(int j = 1; j < T; ++j){
             tmp += delta_output_right[i + 1][j] * output_h_right[i][j].t();
             tmp2 += deltad2_output_right[i + 1][j] * pow(output_h_right[i][j].t(), 2.0);
+            if(i > 0){
+                tmp += delta_output_right[i + 1][j] * output_h_left[i][j].t();
+                tmp2 += deltad2_output_right[i + 1][j] * pow(output_h_left[i][j].t(), 2.0);
+            }
         }
         hLayers[i].Ugrad_output_right = tmp / nSamples + hiddenConfig[i].WeightDecay * hLayers[i].U_output_right;
         hLayers[i].Ud2_output_right = tmp2 / nSamples + hiddenConfig[i].WeightDecay;
