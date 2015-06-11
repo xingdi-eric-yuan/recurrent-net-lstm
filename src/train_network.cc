@@ -51,7 +51,7 @@ trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<in
                 std::vector<Mat>().swap(sampleX);
             }
             if(!is_gradient_checking){
-                
+                /*
                 cout<<"Test training data: "<<endl;;
                 testNetwork(x, y, HiddenLayers, smr, re_wordmap, wordvec);
                 cout<<"Test testing data: "<<endl;;
