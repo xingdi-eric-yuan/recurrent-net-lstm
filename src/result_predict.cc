@@ -63,9 +63,9 @@ resultPredict(std::vector<Mat> &x, std::vector<LSTMl> &hLayers, Smr &smr){
                 tmp_cell = hLayers[i - 1].U_cell_left * output_h_right[i - 1][j];
                 tmp_output = hLayers[i - 1].U_output_left * output_h_right[i - 1][j];
             } 
-            tmp_input = nonLinearity(tmp_input);
-            tmp_forget = nonLinearity(tmp_forget);
-            tmp_cell = sigmoid(tmp_cell);
+            tmp_input = nonLinearity(tmp_input, GATE_NL);
+            tmp_forget = nonLinearity(tmp_forget, GATE_NL);
+            tmp_cell = nonLinearity(tmp_cell, IO_NL);
             tmp_input.copyTo(acti_input_left[i - 1][j]);
             tmp_forget.copyTo(acti_forget_left[i - 1][j]);
             tmp_cell = tmp_cell.mul(acti_input_left[i - 1][j]);
@@ -74,9 +74,9 @@ resultPredict(std::vector<Mat> &x, std::vector<LSTMl> &hLayers, Smr &smr){
             }
             tmp_cell.copyTo(acti_cell_left[i - 1][j]);
             tmp_output += hLayers[i - 1].V_output_left -> full * tmp_cell;
-            tmp_output = nonLinearity(tmp_output);
+            tmp_output = nonLinearity(tmp_output, GATE_NL);
             tmp_output.copyTo(acti_output_left[i - 1][j]);
-            tmp_output = tmp_output.mul(sigmoid(tmp_cell));
+            tmp_output = tmp_output.mul(nonLinearity(tmp_cell, IO_NL));
             tmp_output.copyTo(output_h_left[i][j]);
         }
         // from right to left
@@ -101,9 +101,9 @@ resultPredict(std::vector<Mat> &x, std::vector<LSTMl> &hLayers, Smr &smr){
                 tmp_cell = hLayers[i - 1].U_cell_right * output_h_left[i - 1][j];
                 tmp_output = hLayers[i - 1].U_output_right * output_h_left[i - 1][j];
             }
-            tmp_input = nonLinearity(tmp_input);
-            tmp_forget = nonLinearity(tmp_forget);
-            tmp_cell = sigmoid(tmp_cell);
+            tmp_input = nonLinearity(tmp_input, GATE_NL);
+            tmp_forget = nonLinearity(tmp_forget, GATE_NL);
+            tmp_cell = nonLinearity(tmp_cell, IO_NL);
             tmp_input.copyTo(acti_input_right[i - 1][j]);
             tmp_forget.copyTo(acti_forget_right[i - 1][j]);
             tmp_cell = tmp_cell.mul(acti_input_right[i - 1][j]);
@@ -112,9 +112,9 @@ resultPredict(std::vector<Mat> &x, std::vector<LSTMl> &hLayers, Smr &smr){
             }
             tmp_cell.copyTo(acti_cell_right[i - 1][j]);
             tmp_output += hLayers[i - 1].V_output_right -> full * tmp_cell;
-            tmp_output = nonLinearity(tmp_output);
+            tmp_output = nonLinearity(tmp_output, GATE_NL);
             tmp_output.copyTo(acti_output_right[i - 1][j]);
-            tmp_output = tmp_output.mul(sigmoid(tmp_cell));
+            tmp_output = tmp_output.mul(nonLinearity(tmp_cell, IO_NL));
             tmp_output.copyTo(output_h_right[i][j]);
         }
     }

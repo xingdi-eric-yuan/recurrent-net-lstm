@@ -192,7 +192,8 @@ readConfigFile(string filepath, bool showinfo){
     
     use_log = get_word_bool(str, "USE_LOG");
     batch_size = get_word_int(str, "BATCH_SIZE");
-    non_linearity = get_word_type(str, "NON_LINEARITY");
+    io_non_linearity = get_word_type(str, "IO_NON_LINEARITY");
+    gate_non_linearity = get_word_type(str, "GATE_NON_LINEARITY");
 
     training_epochs = get_word_int(str, "TRAINING_EPOCHS");
     lrate_w = get_word_double(str, "LRATE_W");
@@ -221,7 +222,8 @@ readConfigFile(string filepath, bool showinfo){
     cout<<"is_gradient_checking = "<<is_gradient_checking<<endl;
     cout<<"use_log = "<<use_log<<endl;
     cout<<"batch size = "<<batch_size<<endl;
-    cout<<"non-linearity method = "<<non_linearity<<endl;
+    cout<<"I/0 non-linearity method = "<<io_non_linearity<<endl;
+    cout<<"gate non-linearity method = "<<gate_non_linearity<<endl;
     cout<<"training epochs = "<<training_epochs<<endl;
     cout<<"learning rate for weight matrices = "<<lrate_w<<endl;
     cout<<"iteration per epoch = "<<iter_per_epo<<endl;

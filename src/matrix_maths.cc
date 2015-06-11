@@ -67,10 +67,13 @@ dTanh(const Mat &M){
 }
 
 Mat 
-nonLinearity(const Mat &M){
-    if(non_linearity == NL_RELU){
+nonLinearity(const Mat &M, int type){
+    int tmpnl = 0;
+    if(type == IO_NL) tmpnl = io_non_linearity;
+    else tmpnl = gate_non_linearity; // type == GATE_NL
+    if(tmpnl == NL_RELU){
         return ReLU(M);
-    }elif(non_linearity == NL_TANH){
+    }elif(tmpnl == NL_TANH){
         return Tanh(M);
     }else{
         return sigmoid(M);
@@ -78,10 +81,13 @@ nonLinearity(const Mat &M){
 }
 
 Mat 
-dnonLinearity(const Mat &M){
-    if(non_linearity == NL_RELU){
+dnonLinearity(const Mat &M, int type){
+    int tmpnl = 0;
+    if(type == IO_NL) tmpnl = io_non_linearity;
+    else tmpnl = gate_non_linearity; // type == GATE_NL
+    if(tmpnl == NL_RELU){
         return dReLU(M);
-    }elif(non_linearity == NL_TANH){
+    }elif(tmpnl == NL_TANH){
         return dTanh(M);
     }else{
         return dsigmoid(M);

@@ -20,7 +20,7 @@ trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<in
         for(int i = 0; i < hiddenConfig.size(); i++){
             gradientChecking_LSTMLayer(HiddenLayers, smr, sampleX, sampleY, i);   
         }
-        // gradientChecking_SoftmaxLayer(HiddenLayers, smr, sampleX, sampleY);
+         gradientChecking_SoftmaxLayer(HiddenLayers, smr, sampleX, sampleY);
     }else{
         
         cout<<"****************************************************************************"<<endl
@@ -46,12 +46,11 @@ trainNetwork(const std::vector<std::vector<int> > &x, std::vector<std::vector<in
                     // hidden layer update
                     LSTMud.update(HiddenLayers, k);
                 }
-
                 sampleX.clear();
                 std::vector<Mat>().swap(sampleX);
             }
             if(!is_gradient_checking){
-                /*
+                
                 cout<<"Test training data: "<<endl;;
                 testNetwork(x, y, HiddenLayers, smr, re_wordmap, wordvec);
                 cout<<"Test testing data: "<<endl;;

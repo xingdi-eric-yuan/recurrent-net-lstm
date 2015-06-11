@@ -13,8 +13,8 @@ Mat ReLU(const Mat& );
 Mat dReLU(const Mat& );
 Mat Tanh(const Mat &);
 Mat dTanh(const Mat &);
-Mat nonLinearity(const Mat &);
-Mat dnonLinearity(const Mat &);
+Mat nonLinearity(const Mat &, int);
+Mat dnonLinearity(const Mat &, int);
 // Mimic rot90() in Matlab/GNU Octave.
 Mat rot90(const Mat &, int);
 // get KroneckerProduct 

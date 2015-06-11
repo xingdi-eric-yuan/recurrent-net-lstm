@@ -85,9 +85,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             tmp_input.copyTo(nonlin_input_left[i - 1][j]);
             tmp_forget.copyTo(nonlin_forget_left[i - 1][j]);
             tmp_cell.copyTo(nonlin_cell_left[i - 1][j]);
-            tmp_input = nonLinearity(tmp_input);
-            tmp_forget = nonLinearity(tmp_forget);
-            tmp_cell = sigmoid(tmp_cell);
+            tmp_input = nonLinearity(tmp_input, GATE_NL);
+            tmp_forget = nonLinearity(tmp_forget, GATE_NL);
+            tmp_cell = nonLinearity(tmp_cell, IO_NL);
             tmp_input.copyTo(acti_input_left[i - 1][j]);
             tmp_forget.copyTo(acti_forget_left[i - 1][j]);
             tmp_cell = tmp_cell.mul(acti_input_left[i - 1][j]);
@@ -97,9 +97,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             tmp_cell.copyTo(acti_cell_left[i - 1][j]);
             tmp_output += hLayers[i - 1].V_output_left -> full * tmp_cell;
             tmp_output.copyTo(nonlin_output_left[i - 1][j]);
-            tmp_output = nonLinearity(tmp_output);
+            tmp_output = nonLinearity(tmp_output, GATE_NL);
             tmp_output.copyTo(acti_output_left[i - 1][j]);
-            tmp_output = tmp_output.mul(sigmoid(tmp_cell));
+            tmp_output = tmp_output.mul(nonLinearity(tmp_cell, IO_NL));
             tmp_output.copyTo(output_h_left[i][j]);
         }
         // from right to left
@@ -127,9 +127,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             tmp_input.copyTo(nonlin_input_right[i - 1][j]);
             tmp_forget.copyTo(nonlin_forget_right[i - 1][j]);
             tmp_cell.copyTo(nonlin_cell_right[i - 1][j]);
-            tmp_input = nonLinearity(tmp_input);
-            tmp_forget = nonLinearity(tmp_forget);
-            tmp_cell = sigmoid(tmp_cell);
+            tmp_input = nonLinearity(tmp_input, GATE_NL);
+            tmp_forget = nonLinearity(tmp_forget, GATE_NL);
+            tmp_cell = nonLinearity(tmp_cell, IO_NL);
             tmp_input.copyTo(acti_input_right[i - 1][j]);
             tmp_forget.copyTo(acti_forget_right[i - 1][j]);
             tmp_cell = tmp_cell.mul(acti_input_right[i - 1][j]);
@@ -139,9 +139,9 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             tmp_cell.copyTo(acti_cell_right[i - 1][j]);
             tmp_output += hLayers[i - 1].V_output_right -> full * tmp_cell;
             tmp_output.copyTo(nonlin_output_right[i - 1][j]);
-            tmp_output = nonLinearity(tmp_output);
+            tmp_output = nonLinearity(tmp_output, GATE_NL);
             tmp_output.copyTo(acti_output_right[i - 1][j]);
-            tmp_output = tmp_output.mul(sigmoid(tmp_cell));
+            tmp_output = tmp_output.mul(nonLinearity(tmp_cell, IO_NL));
             tmp_output.copyTo(output_h_right[i][j]);
         }
     }
@@ -187,7 +187,7 @@ getNetworkCost(std::vector<Mat> &x, Mat &y, std::vector<LSTMl> &hLayers, Smr &sm
             cout<<"nonlin_cell  "<<i<<": "<<endl<<" "<<nonlin_cell[0][i]<<endl;
 
 cout<<"******"<<endl;
-cout<<sigmoid(nonlin_cell[0][i])<<endl;
+cout<<nonLinearity(nonlin_cell[0][i])<<endl;
 cout<<"******"<<endl;
 
 
@@ -339,16 +339,16 @@ cout<<"******"<<endl;
         tmp.copyTo(epsilon_output_left[epsilon_output_left.size() - 1][i]);
         tmp2.copyTo(epsilond2_output_left[epsilond2_output_left.size() - 1][i]);
         // output gates
-        tmp = tmp.mul(sigmoid(acti_cell_left[acti_cell_left.size() - 1][i]));
-        tmp = tmp.mul(dnonLinearity(nonlin_output_left[nonlin_output_left.size() - 1][i]));
-        tmp2 = tmp2.mul(pow(sigmoid(acti_cell_left[acti_cell_left.size() - 1][i]), 2.0));
-        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output_left[nonlin_output_left.size() - 1][i]), 2.0));
+        tmp = tmp.mul(nonLinearity(acti_cell_left[acti_cell_left.size() - 1][i], IO_NL));
+        tmp = tmp.mul(dnonLinearity(nonlin_output_left[nonlin_output_left.size() - 1][i], GATE_NL));
+        tmp2 = tmp2.mul(pow(nonLinearity(acti_cell_left[acti_cell_left.size() - 1][i], IO_NL), 2.0));
+        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output_left[nonlin_output_left.size() - 1][i], GATE_NL), 2.0));
         tmp.copyTo(delta_output_left[delta_output_left.size() - 1][i]);
         tmp2.copyTo(deltad2_output_left[deltad2_output_left.size() - 1][i]);
         // states
-        tmp = acti_output_left[acti_output_left.size() - 1][i].mul(dsigmoid(acti_cell_left[acti_cell_left.size() - 1][i]));
+        tmp = acti_output_left[acti_output_left.size() - 1][i].mul(dnonLinearity(acti_cell_left[acti_cell_left.size() - 1][i], IO_NL));
         tmp = tmp.mul(epsilon_output_left[epsilon_output_left.size() - 1][i]);
-        tmp2 = pow(acti_output_left[acti_output_left.size() - 1][i], 2.0).mul(pow(dsigmoid(acti_cell_left[acti_cell_left.size() - 1][i]), 2.0));
+        tmp2 = pow(acti_output_left[acti_output_left.size() - 1][i], 2.0).mul(pow(dnonLinearity(acti_cell_left[acti_cell_left.size() - 1][i], IO_NL), 2.0));
         tmp2 = tmp2.mul(epsilond2_output_left[epsilond2_output_left.size() - 1][i]);
         if(i < T - 1){
             tmp += acti_forget_left[acti_forget_left.size() - 1][i + 1].mul(epsilon_state_left[epsilon_state_left.size() - 1][i + 1]);
@@ -363,18 +363,18 @@ cout<<"******"<<endl;
         tmp.copyTo(epsilon_state_left[epsilon_state_left.size() - 1][i]);
         tmp2.copyTo(epsilond2_state_left[epsilond2_state_left.size() - 1][i]);
         // cells
-        tmp = acti_input_left[acti_input_left.size() - 1][i].mul(dsigmoid(nonlin_cell_left[nonlin_cell_left.size() - 1][i]));
+        tmp = acti_input_left[acti_input_left.size() - 1][i].mul(dnonLinearity(nonlin_cell_left[nonlin_cell_left.size() - 1][i], IO_NL));
         tmp = tmp.mul(epsilon_state_left[epsilon_state_left.size() - 1][i]);
-        tmp2 = pow(acti_input_left[acti_input_left.size() - 1][i], 2.0).mul(pow(dsigmoid(nonlin_cell_left[nonlin_cell_left.size() - 1][i]), 2.0));
+        tmp2 = pow(acti_input_left[acti_input_left.size() - 1][i], 2.0).mul(pow(dnonLinearity(nonlin_cell_left[nonlin_cell_left.size() - 1][i], IO_NL), 2.0));
         tmp2 = tmp2.mul(epsilond2_state_left[epsilond2_state_left.size() - 1][i]);
         tmp.copyTo(delta_cell_left[delta_cell_left.size() - 1][i]);
         tmp2.copyTo(deltad2_cell_left[deltad2_cell_left.size() - 1][i]);
         // forget gates
         if(i > 0){
             tmp = acti_cell_left[acti_cell_left.size() - 1][i - 1].mul(epsilon_state_left[epsilon_state_left.size() - 1][i]);
-            tmp = tmp.mul(dnonLinearity(nonlin_forget_left[nonlin_forget_left.size() - 1][i]));
+            tmp = tmp.mul(dnonLinearity(nonlin_forget_left[nonlin_forget_left.size() - 1][i], GATE_NL));
             tmp2 = pow(acti_cell_left[acti_cell_left.size() - 1][i - 1], 2.0).mul(epsilond2_state_left[epsilond2_state_left.size() - 1][i]);
-            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget_left[nonlin_forget_left.size() - 1][i]), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget_left[nonlin_forget_left.size() - 1][i], GATE_NL), 2.0));
         }else{
             tmp = Mat::zeros(nonlin_forget_left[nonlin_forget_left.size() - 1][i].size(), CV_64FC1);
             tmp2 = Mat::zeros(nonlin_forget_left[nonlin_forget_left.size() - 1][i].size(), CV_64FC1);
@@ -382,10 +382,10 @@ cout<<"******"<<endl;
         tmp.copyTo(delta_forget_left[delta_forget_left.size() - 1][i]);
         tmp2.copyTo(deltad2_forget_left[deltad2_forget_left.size() - 1][i]);
         // input gates
-        tmp = epsilon_state_left[epsilon_state_left.size() - 1][i].mul(sigmoid(nonlin_cell_left[nonlin_cell_left.size() - 1][i]));
-        tmp = tmp.mul(dnonLinearity(nonlin_input_left[nonlin_input_left.size() - 1][i]));
-        tmp2 = epsilond2_state_left[epsilond2_state_left.size() - 1][i].mul(pow(sigmoid(nonlin_cell_left[nonlin_cell_left.size() - 1][i]), 2.0));
-        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input_left[nonlin_input_left.size() - 1][i]), 2.0));
+        tmp = epsilon_state_left[epsilon_state_left.size() - 1][i].mul(nonLinearity(nonlin_cell_left[nonlin_cell_left.size() - 1][i], IO_NL));
+        tmp = tmp.mul(dnonLinearity(nonlin_input_left[nonlin_input_left.size() - 1][i], GATE_NL));
+        tmp2 = epsilond2_state_left[epsilond2_state_left.size() - 1][i].mul(pow(nonLinearity(nonlin_cell_left[nonlin_cell_left.size() - 1][i], IO_NL), 2.0));
+        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input_left[nonlin_input_left.size() - 1][i], GATE_NL), 2.0));
         tmp.copyTo(delta_input_left[delta_input_left.size() - 1][i]);
         tmp2.copyTo(deltad2_input_left[deltad2_input_left.size() - 1][i]);
     }
@@ -407,16 +407,16 @@ cout<<"******"<<endl;
         tmp.copyTo(epsilon_output_right[epsilon_output_right.size() - 1][i]);
         tmp2.copyTo(epsilond2_output_right[epsilond2_output_right.size() - 1][i]);
         // output gates
-        tmp = tmp.mul(sigmoid(acti_cell_right[acti_cell_right.size() - 1][i]));
-        tmp = tmp.mul(dnonLinearity(nonlin_output_right[nonlin_output_right.size() - 1][i]));
-        tmp2 = tmp2.mul(pow(sigmoid(acti_cell_right[acti_cell_right.size() - 1][i]), 2.0));
-        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output_right[nonlin_output_right.size() - 1][i]), 2.0));
+        tmp = tmp.mul(nonLinearity(acti_cell_right[acti_cell_right.size() - 1][i], IO_NL));
+        tmp = tmp.mul(dnonLinearity(nonlin_output_right[nonlin_output_right.size() - 1][i], GATE_NL));
+        tmp2 = tmp2.mul(pow(nonLinearity(acti_cell_right[acti_cell_right.size() - 1][i], IO_NL), 2.0));
+        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output_right[nonlin_output_right.size() - 1][i], GATE_NL), 2.0));
         tmp.copyTo(delta_output_right[delta_output_right.size() - 1][i]);
         tmp2.copyTo(deltad2_output_right[deltad2_output_right.size() - 1][i]);
         // states
-        tmp = acti_output_right[acti_output_right.size() - 1][i].mul(dsigmoid(acti_cell_right[acti_cell_right.size() - 1][i]));
+        tmp = acti_output_right[acti_output_right.size() - 1][i].mul(dnonLinearity(acti_cell_right[acti_cell_right.size() - 1][i], IO_NL));
         tmp = tmp.mul(epsilon_output_right[epsilon_output_right.size() - 1][i]);
-        tmp2 = pow(acti_output_right[acti_output_right.size() - 1][i], 2.0).mul(pow(dsigmoid(acti_cell_right[acti_cell_right.size() - 1][i]), 2.0));
+        tmp2 = pow(acti_output_right[acti_output_right.size() - 1][i], 2.0).mul(pow(dnonLinearity(acti_cell_right[acti_cell_right.size() - 1][i], IO_NL), 2.0));
         tmp2 = tmp2.mul(epsilond2_output_right[epsilond2_output_right.size() - 1][i]);
         if(i > 0){
             tmp += acti_forget_right[acti_forget_right.size() - 1][i - 1].mul(epsilon_state_right[epsilon_state_right.size() - 1][i - 1]);
@@ -431,18 +431,18 @@ cout<<"******"<<endl;
         tmp.copyTo(epsilon_state_right[epsilon_state_right.size() - 1][i]);
         tmp2.copyTo(epsilond2_state_right[epsilond2_state_right.size() - 1][i]);
         // cells
-        tmp = acti_input_right[acti_input_right.size() - 1][i].mul(dsigmoid(nonlin_cell_right[nonlin_cell_right.size() - 1][i]));
+        tmp = acti_input_right[acti_input_right.size() - 1][i].mul(dnonLinearity(nonlin_cell_right[nonlin_cell_right.size() - 1][i], IO_NL));
         tmp = tmp.mul(epsilon_state_right[epsilon_state_right.size() - 1][i]);
-        tmp2 = pow(acti_input_right[acti_input_right.size() - 1][i], 2.0).mul(pow(dsigmoid(nonlin_cell_right[nonlin_cell_right.size() - 1][i]), 2.0));
+        tmp2 = pow(acti_input_right[acti_input_right.size() - 1][i], 2.0).mul(pow(dnonLinearity(nonlin_cell_right[nonlin_cell_right.size() - 1][i], IO_NL), 2.0));
         tmp2 = tmp2.mul(epsilond2_state_right[epsilond2_state_right.size() - 1][i]);
         tmp.copyTo(delta_cell_right[delta_cell_right.size() - 1][i]);
         tmp2.copyTo(deltad2_cell_right[deltad2_cell_right.size() - 1][i]);
         // forget gates
         if(i < T - 1){
             tmp = acti_cell_right[acti_cell_right.size() - 1][i + 1].mul(epsilon_state_right[epsilon_state_right.size() - 1][i]);
-            tmp = tmp.mul(dnonLinearity(nonlin_forget_right[nonlin_forget_right.size() - 1][i]));
+            tmp = tmp.mul(dnonLinearity(nonlin_forget_right[nonlin_forget_right.size() - 1][i], GATE_NL));
             tmp2 = pow(acti_cell_right[acti_cell_right.size() - 1][i + 1], 2.0).mul(epsilond2_state_right[epsilond2_state_right.size() - 1][i]);
-            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget_right[nonlin_forget_right.size() - 1][i]), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget_right[nonlin_forget_right.size() - 1][i], GATE_NL), 2.0));
         }else{
             tmp = Mat::zeros(nonlin_forget_right[nonlin_forget_right.size() - 1][i].size(), CV_64FC1);
             tmp2 = Mat::zeros(nonlin_forget_right[nonlin_forget_right.size() - 1][i].size(), CV_64FC1);
@@ -450,10 +450,10 @@ cout<<"******"<<endl;
         tmp.copyTo(delta_forget_right[delta_forget_right.size() - 1][i]);
         tmp2.copyTo(deltad2_forget_right[deltad2_forget_right.size() - 1][i]);
         // input gates
-        tmp = epsilon_state_right[epsilon_state_right.size() - 1][i].mul(sigmoid(nonlin_cell_right[nonlin_cell_right.size() - 1][i]));
-        tmp = tmp.mul(dnonLinearity(nonlin_input_right[nonlin_input_right.size() - 1][i]));
-        tmp2 = epsilond2_state_right[epsilond2_state_right.size() - 1][i].mul(pow(sigmoid(nonlin_cell_right[nonlin_cell_right.size() - 1][i]), 2.0));
-        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input_right[nonlin_input_right.size() - 1][i]), 2.0));
+        tmp = epsilon_state_right[epsilon_state_right.size() - 1][i].mul(nonLinearity(nonlin_cell_right[nonlin_cell_right.size() - 1][i], IO_NL));
+        tmp = tmp.mul(dnonLinearity(nonlin_input_right[nonlin_input_right.size() - 1][i], GATE_NL));
+        tmp2 = epsilond2_state_right[epsilond2_state_right.size() - 1][i].mul(pow(nonLinearity(nonlin_cell_right[nonlin_cell_right.size() - 1][i], IO_NL), 2.0));
+        tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input_right[nonlin_input_right.size() - 1][i], GATE_NL), 2.0));
         tmp.copyTo(delta_input_right[delta_input_right.size() - 1][i]);
         tmp2.copyTo(deltad2_input_right[deltad2_input_right.size() - 1][i]);
     }    
@@ -491,16 +491,16 @@ cout<<"******"<<endl;
             tmp.copyTo(epsilon_output_left[i][j]);
             tmp2.copyTo(epsilond2_output_left[i][j]);
             // output gates
-            tmp = tmp.mul(sigmoid(acti_cell_left[i - 1][j]));
-            tmp = tmp.mul(dnonLinearity(nonlin_output_left[i - 1][j]));
-            tmp2 = tmp2.mul(pow(sigmoid(acti_cell_left[i - 1][j]), 2.0));
-            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output_left[i - 1][j]), 2.0));
+            tmp = tmp.mul(nonLinearity(acti_cell_left[i - 1][j], IO_NL));
+            tmp = tmp.mul(dnonLinearity(nonlin_output_left[i - 1][j], GATE_NL));
+            tmp2 = tmp2.mul(pow(nonLinearity(acti_cell_left[i - 1][j], IO_NL), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output_left[i - 1][j], GATE_NL), 2.0));
             tmp.copyTo(delta_output_left[i][j]);
             tmp2.copyTo(deltad2_output_left[i][j]);
             // states
-            tmp = acti_output_left[i - 1][j].mul(dsigmoid(acti_cell_left[i - 1][j]));
+            tmp = acti_output_left[i - 1][j].mul(dnonLinearity(acti_cell_left[i - 1][j], IO_NL));
             tmp = tmp.mul(epsilon_output_left[i][j]);
-            tmp2 = pow(acti_output_left[i - 1][j], 2.0).mul(pow(dsigmoid(acti_cell_left[i - 1][j]), 2.0));
+            tmp2 = pow(acti_output_left[i - 1][j], 2.0).mul(pow(dnonLinearity(acti_cell_left[i - 1][j], IO_NL), 2.0));
             tmp2 = tmp2.mul(epsilond2_output_left[i][j]);
             if(j < T - 1){
                 tmp += acti_forget_left[i - 1][j + 1].mul(epsilon_state_left[i][j + 1]);
@@ -515,18 +515,18 @@ cout<<"******"<<endl;
             tmp.copyTo(epsilon_state_left[i][j]);
             tmp2.copyTo(epsilond2_state_left[i][j]);
             // cells
-            tmp = acti_input_left[i - 1][j].mul(dsigmoid(nonlin_cell_left[i - 1][j]));
+            tmp = acti_input_left[i - 1][j].mul(dnonLinearity(nonlin_cell_left[i - 1][j], IO_NL));
             tmp = tmp.mul(epsilon_state_left[i][j]);
-            tmp2 = pow(acti_input_left[i - 1][j], 2.0).mul(pow(dsigmoid(nonlin_cell_left[i - 1][j]), 2.0));
+            tmp2 = pow(acti_input_left[i - 1][j], 2.0).mul(pow(dnonLinearity(nonlin_cell_left[i - 1][j], IO_NL), 2.0));
             tmp2 = tmp2.mul(epsilond2_state_left[i][j]);
             tmp.copyTo(delta_cell_left[i][j]);
             tmp2.copyTo(deltad2_cell_left[i][j]);
             // forget gates
             if(j > 0){
                 tmp = acti_cell_left[i - 1][j - 1].mul(epsilon_state_left[i][j]);
-                tmp = tmp.mul(dnonLinearity(nonlin_forget_left[i - 1][j]));
+                tmp = tmp.mul(dnonLinearity(nonlin_forget_left[i - 1][j], GATE_NL));
                 tmp2 = pow(acti_cell_left[i - 1][j - 1], 2.0).mul(epsilond2_state_left[i][j]);
-                tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget_left[i - 1][j]), 2.0));
+                tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget_left[i - 1][j], GATE_NL), 2.0));
             }else{
                 tmp = Mat::zeros(nonlin_forget_left[i - 1][j].size(), CV_64FC1);
                 tmp2 = Mat::zeros(nonlin_forget_left[i - 1][j].size(), CV_64FC1);
@@ -534,10 +534,10 @@ cout<<"******"<<endl;
             tmp.copyTo(delta_forget_left[i][j]);
             tmp2.copyTo(deltad2_forget_left[i][j]);
             // input gates
-            tmp = epsilon_state_left[i][j].mul(sigmoid(nonlin_cell_left[i - 1][j]));
-            tmp = tmp.mul(dnonLinearity(nonlin_input_left[i - 1][j]));
-            tmp2 = epsilond2_state_left[i][j].mul(pow(sigmoid(nonlin_cell_left[i - 1][j]), 2.0));
-            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input_left[i - 1][j]), 2.0));
+            tmp = epsilon_state_left[i][j].mul(nonLinearity(nonlin_cell_left[i - 1][j], IO_NL));
+            tmp = tmp.mul(dnonLinearity(nonlin_input_left[i - 1][j], GATE_NL));
+            tmp2 = epsilond2_state_left[i][j].mul(pow(nonLinearity(nonlin_cell_left[i - 1][j], IO_NL), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input_left[i - 1][j], GATE_NL), 2.0));
             tmp.copyTo(delta_input_left[i][j]);
             tmp2.copyTo(deltad2_input_left[i][j]);
         }
@@ -573,16 +573,16 @@ cout<<"******"<<endl;
             tmp.copyTo(epsilon_output_right[i][j]);
             tmp2.copyTo(epsilond2_output_right[i][j]);
             // output gates
-            tmp = tmp.mul(sigmoid(acti_cell_right[i - 1][j]));
-            tmp = tmp.mul(dnonLinearity(nonlin_output_right[i - 1][j]));
-            tmp2 = tmp2.mul(pow(sigmoid(acti_cell_right[i - 1][j]), 2.0));
-            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output_right[i - 1][j]), 2.0));
+            tmp = tmp.mul(nonLinearity(acti_cell_right[i - 1][j], IO_NL));
+            tmp = tmp.mul(dnonLinearity(nonlin_output_right[i - 1][j], GATE_NL));
+            tmp2 = tmp2.mul(pow(nonLinearity(acti_cell_right[i - 1][j], IO_NL), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_output_right[i - 1][j], GATE_NL), 2.0));
             tmp.copyTo(delta_output_right[i][j]);
             tmp2.copyTo(deltad2_output_right[i][j]);
             // states
-            tmp = acti_output_right[i - 1][j].mul(dsigmoid(acti_cell_right[i - 1][j]));
+            tmp = acti_output_right[i - 1][j].mul(dnonLinearity(acti_cell_right[i - 1][j], IO_NL));
             tmp = tmp.mul(epsilon_output_right[i][j]);
-            tmp2 = pow(acti_output_right[i - 1][j], 2.0).mul(pow(dsigmoid(acti_cell_right[i - 1][j]), 2.0));
+            tmp2 = pow(acti_output_right[i - 1][j], 2.0).mul(pow(dnonLinearity(acti_cell_right[i - 1][j], IO_NL), 2.0));
             tmp2 = tmp2.mul(epsilond2_output_right[i][j]);
             if(j > 0){
                 tmp += acti_forget_right[i - 1][j - 1].mul(epsilon_state_right[i][j - 1]);
@@ -597,18 +597,18 @@ cout<<"******"<<endl;
             tmp.copyTo(epsilon_state_right[i][j]);
             tmp2.copyTo(epsilond2_state_right[i][j]);
             // cells
-            tmp = acti_input_right[i - 1][j].mul(dsigmoid(nonlin_cell_right[i - 1][j]));
+            tmp = acti_input_right[i - 1][j].mul(dnonLinearity(nonlin_cell_right[i - 1][j], IO_NL));
             tmp = tmp.mul(epsilon_state_right[i][j]);
-            tmp2 = pow(acti_input_right[i - 1][j], 2.0).mul(pow(dsigmoid(nonlin_cell_right[i - 1][j]), 2.0));
+            tmp2 = pow(acti_input_right[i - 1][j], 2.0).mul(pow(dnonLinearity(nonlin_cell_right[i - 1][j], IO_NL), 2.0));
             tmp2 = tmp2.mul(epsilond2_state_right[i][j]);
             tmp.copyTo(delta_cell_right[i][j]);
             tmp2.copyTo(deltad2_cell_right[i][j]);
             // forget gates
             if(j < T - 1){
                 tmp = acti_cell_right[i - 1][j + 1].mul(epsilon_state_right[i][j]);
-                tmp = tmp.mul(dnonLinearity(nonlin_forget_right[i - 1][j]));
+                tmp = tmp.mul(dnonLinearity(nonlin_forget_right[i - 1][j], GATE_NL));
                 tmp2 = pow(acti_cell_right[i - 1][j + 1], 2.0).mul(epsilond2_state_right[i][j]);
-                tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget_right[i - 1][j]), 2.0));
+                tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_forget_right[i - 1][j], GATE_NL), 2.0));
             }else{
                 tmp = Mat::zeros(nonlin_forget_right[i - 1][j].size(), CV_64FC1);
                 tmp2 = Mat::zeros(nonlin_forget_right[i - 1][j].size(), CV_64FC1);
@@ -616,10 +616,10 @@ cout<<"******"<<endl;
             tmp.copyTo(delta_forget_right[i][j]);
             tmp2.copyTo(deltad2_forget_right[i][j]);
             // input gates
-            tmp = epsilon_state_right[i][j].mul(sigmoid(nonlin_cell_right[i - 1][j]));
-            tmp = tmp.mul(dnonLinearity(nonlin_input_right[i - 1][j]));
-            tmp2 = epsilond2_state_right[i][j].mul(pow(sigmoid(nonlin_cell_right[i - 1][j]), 2.0));
-            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input_right[i - 1][j]), 2.0));
+            tmp = epsilon_state_right[i][j].mul(nonLinearity(nonlin_cell_right[i - 1][j], IO_NL));
+            tmp = tmp.mul(dnonLinearity(nonlin_input_right[i - 1][j], GATE_NL));
+            tmp2 = epsilond2_state_right[i][j].mul(pow(nonLinearity(nonlin_cell_right[i - 1][j], IO_NL), 2.0));
+            tmp2 = tmp2.mul(pow(dnonLinearity(nonlin_input_right[i - 1][j], GATE_NL), 2.0));
             tmp.copyTo(delta_input_right[i][j]);
             tmp2.copyTo(deltad2_input_right[i][j]);
         }

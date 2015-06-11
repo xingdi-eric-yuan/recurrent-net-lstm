@@ -26,6 +26,9 @@
 #define NL_TANH 1
 #define NL_RELU 2
 
+#define IO_NL 0
+#define GATE_NL 1
+
 #define UPDATE_FROM_DIAG 0
 #define UPDATE_FROM_FULL 1
 
@@ -54,7 +57,8 @@ extern int batch_size;
 extern int log_iter;
 extern bool use_word2vec;
 
-extern int non_linearity;
+extern int io_non_linearity;
+extern int gate_non_linearity;
 extern int training_epochs;
 extern double lrate_w;
 extern double momentum_w_init;

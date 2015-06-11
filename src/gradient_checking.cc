@@ -62,13 +62,13 @@ gradientChecking_LSTMLayer(std::vector<LSTMl> &hLayers, Smr &smr, std::vector<Ma
         cout<<"## test LSTM layer["<<layer<<"] output W --- forward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_output_left);
-        //gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_left, p);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_left, p);
 
         cout<<"################################################"<<endl;
         cout<<"## test LSTM layer["<<layer<<"] output W --- backward"<<endl;
         cout<<"################################################"<<endl;
         p = &(hLayers[layer].W_output_right);
-        //gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_right, p);
+        gradient_checking(sampleX, sampleY, hLayers, smr, hLayers[layer].Wgrad_output_right, p);
 
         cout<<"################################################"<<endl;
         cout<<"## test LSTM layer["<<layer<<"] output U --- forward"<<endl;
